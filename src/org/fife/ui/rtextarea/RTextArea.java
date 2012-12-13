@@ -127,6 +127,12 @@ public class RTextArea extends RTextAreaBase
 	 */
 	private JPopupMenu popupMenu;
 
+	private JMenuItem undoMenuItem;
+	private JMenuItem redoMenuItem;
+	private JMenuItem cutMenuItem;
+	private JMenuItem pasteMenuItem;
+	private JMenuItem deleteMenuItem;
+
 	/**
 	 * Whether the popup menu has been created.
 	 */
@@ -391,6 +397,19 @@ public class RTextArea extends RTextAreaBase
 	 * @see #setPopupMenu(JPopupMenu)
 	 */
 	protected void configurePopupMenu(JPopupMenu popupMenu) {
+
+		boolean canType = isEditable() && isEnabled();
+
+		// Since the user can customize the popup menu, these actions may not
+		// have been created.
+		if (undoMenuItem!=null) {
+			undoMenuItem.setEnabled(undoAction.isEnabled() && canType);
+			redoMenuItem.setEnabled(redoAction.isEnabled() && canType);
+			cutMenuItem.setEnabled(cutAction.isEnabled() && canType);
+			pasteMenuItem.setEnabled(pasteAction.isEnabled() && canType);
+			deleteMenuItem.setEnabled(deleteAction.isEnabled() && canType);
+		}
+
 	}
 
 
@@ -426,13 +445,13 @@ public class RTextArea extends RTextAreaBase
 	 */
 	protected JPopupMenu createPopupMenu() {
 		JPopupMenu menu = new JPopupMenu();
-		menu.add(createPopupMenuItem(undoAction));
-		menu.add(createPopupMenuItem(redoAction));
+		menu.add(undoMenuItem = createPopupMenuItem(undoAction));
+		menu.add(redoMenuItem = createPopupMenuItem(redoAction));
 		menu.addSeparator();
-		menu.add(createPopupMenuItem(cutAction));
+		menu.add(cutMenuItem = createPopupMenuItem(cutAction));
 		menu.add(createPopupMenuItem(copyAction));
-		menu.add(createPopupMenuItem(pasteAction));
-		menu.add(createPopupMenuItem(deleteAction));
+		menu.add(pasteMenuItem = createPopupMenuItem(pasteAction));
+		menu.add(deleteMenuItem = createPopupMenuItem(deleteAction));
 		menu.addSeparator();
 		menu.add(createPopupMenuItem(selectAllAction));
 		return menu;
@@ -1296,10 +1315,10 @@ public class RTextArea extends RTextAreaBase
 
 
 	/**
-	 * This method is overridden to make sure that instances of
-	 * <code>RTextArea</code> only use {@link ConfigurableCaret}s.
-	 * To set the style of caret (vertical line, block, etc.) used for
-	 * insert or overwrite mode, use {@link #setCaretStyle(int, int)}.
+	 * Sets the caret to use in this text area.  It is strongly encouraged to
+	 * use {@link ConfigurableCaret}s (which is used by default), or a
+	 * subclass, since they know how to render themselves differently when the
+	 * user toggles between insert and overwrite modes.
 	 *
 	 * @param caret The caret to use.  If this is not an instance of
 	 *        <code>ConfigurableCaret</code>, an exception is thrown.
@@ -1308,12 +1327,9 @@ public class RTextArea extends RTextAreaBase
 	 * @see #setCaretStyle(int, int)
 	 */
 	public void setCaret(Caret caret) {
-		if (!(caret instanceof ConfigurableCaret)) {
-			throw new IllegalArgumentException(
-						"RTextArea needs ConfigurableCaret");
-		}
 		super.setCaret(caret);
-		if (carets!=null) { // Called by setUI() before carets is initialized
+		if (carets!=null && // Called by setUI() before carets is initialized
+				caret instanceof ConfigurableCaret) {
 			((ConfigurableCaret)caret).setStyle(carets[getTextMode()]);
 		}
 	}
@@ -1332,7 +1348,7 @@ public class RTextArea extends RTextAreaBase
 					style<=ConfigurableCaret.MAX_STYLE ?
 						style : ConfigurableCaret.THICK_VERTICAL_LINE_STYLE);
 		carets[mode] = style;
-		if (mode==getTextMode()) {
+		if (mode==getTextMode() && getCaret() instanceof ConfigurableCaret) {
 			// Will repaint the caret if necessary.
 			((ConfigurableCaret)getCaret()).setStyle(style);
 		}
@@ -1469,9 +1485,13 @@ public class RTextArea extends RTextAreaBase
 
 
 	/**
-	 * Sets the text mode for this editor pane.
+	 * Sets the text mode for this editor pane.  If the currently installed
+	 * caret is an instance of {@link ConfigurableCaret}, it will be
+	 * automatically updated to render itself appropriately for the new text
+	 * mode.
 	 *
 	 * @param mode Either {@link #INSERT_MODE} or {@link #OVERWRITE_MODE}.
+	 * @see #getTextMode()
 	 */
 	public void setTextMode(int mode) {
 
@@ -1479,8 +1499,10 @@ public class RTextArea extends RTextAreaBase
 			mode = INSERT_MODE;
 
 		if (textMode != mode) {
-			ConfigurableCaret cc = (ConfigurableCaret)getCaret();
-			cc.setStyle(carets[mode]);
+			Caret caret = getCaret();
+			if (caret instanceof ConfigurableCaret) {
+				((ConfigurableCaret)caret).setStyle(carets[mode]);
+			}
 			textMode = mode;
 		}
 

@@ -52,7 +52,7 @@ public class CurlyFoldParser implements FoldParser {
 	/**
 	 * Whether this parser is folding Java.
 	 */
-	private boolean java;
+	private final boolean java;
 
 	/**
 	 * Used to find import statements when folding Java code.
@@ -233,10 +233,7 @@ public class CurlyFoldParser implements FoldParser {
 							//System.out.println("... Adding regular fold at " + t.offset + ", parent==" + parentFold);
 							// Don't add fold markers for single-line blocks
 							if (currentFold.isOnSingleLine()) {
-								if (parentFold!=null) {
-									currentFold.removeFromParent();
-								}
-								else {
+								if (!currentFold.removeFromParent()) {
 									folds.remove(folds.size()-1);
 								}
 							}

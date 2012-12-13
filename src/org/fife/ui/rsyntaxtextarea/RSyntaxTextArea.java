@@ -10,7 +10,6 @@
 package org.fife.ui.rsyntaxtextarea;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -93,6 +92,7 @@ import org.fife.ui.rtextarea.RecordableTextAction;
  *       <li>Lua
  *       <li>Make
  *       <li>MXML
+ *       <li>NSIS
  *       <li>Perl
  *       <li>PHP
  *       <li>Ruby
@@ -125,7 +125,7 @@ import org.fife.ui.rtextarea.RecordableTextAction;
  * bookmarks easily to your text area.
  *
  * @author Robert Futrell
- * @version 2.0.4
+ * @version 2.0.5
  * @see TextEditorPane
  */
 public class RSyntaxTextArea extends RTextArea implements SyntaxConstants {
@@ -546,17 +546,13 @@ private boolean fractionalFontMetricsEnabled;
 	 */
 	protected void configurePopupMenu(JPopupMenu popupMenu) {
 
-		super.configurePopupMenu(popupMenu); // Currently does nothing
+		super.configurePopupMenu(popupMenu);
 
-		// Be nice and let them set the popup to null without overriding
-		// this method
-		if (popupMenu!=null && popupMenu.getComponentCount()>0) {
-			Component c = popupMenu.getComponent(popupMenu.getComponentCount()-1);
-			if (c instanceof JMenu) { // Assume it's the folding menu
-				JMenu foldingMenu = (JMenu)c;
-				foldingMenu.setEnabled(foldManager.
+		// They may have overridden createPopupMenu()...
+		if (popupMenu!=null && popupMenu.getComponentCount()>0 &&
+				foldingMenu!=null) {
+			foldingMenu.setEnabled(foldManager.
 						isCodeFoldingSupportedAndEnabled());
-			}
 		}
 	}
 
