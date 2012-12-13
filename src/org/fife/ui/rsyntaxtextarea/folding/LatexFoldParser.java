@@ -79,7 +79,10 @@ public class LatexFoldParser implements FoldParser {
 									Fold parentFold = currentFold.getParent();
 									// Don't add fold markers for single-line blocks
 									if (currentFold.isOnSingleLine()) {
-										if (!currentFold.removeFromParent()) {
+										if (parentFold!=null) {
+											currentFold.removeFromParent();
+										}
+										else {
 											folds.remove(folds.size()-1);
 										}
 									}

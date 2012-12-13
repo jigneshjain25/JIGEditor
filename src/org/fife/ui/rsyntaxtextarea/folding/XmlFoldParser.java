@@ -85,7 +85,7 @@ public class XmlFoldParser implements FoldParser {
 
 					}
 
-					else if (t.isSingleChar(Token.MARKUP_TAG_DELIMITER, '<')) {
+					else if (t.type==Token.MARKUP_TAG_DELIMITER && t.isSingleChar('<')) {
 						if (currentFold==null) {
 							currentFold = new Fold(FoldType.CODE, textArea, t.offset);
 							folds.add(currentFold);
@@ -98,7 +98,7 @@ public class XmlFoldParser implements FoldParser {
 					else if (t.is(Token.MARKUP_TAG_DELIMITER, MARKUP_SHORT_TAG_END)) {
 						if (currentFold!=null) {
 							Fold parentFold = currentFold.getParent();
-							removeFold(currentFold, folds);
+							currentFold.removeFromParent();
 							currentFold = parentFold;
 						}
 					}
@@ -109,7 +109,7 @@ public class XmlFoldParser implements FoldParser {
 							Fold parentFold = currentFold.getParent();
 							// Don't add fold markers for single-line blocks
 							if (currentFold.isOnSingleLine()) {
-								removeFold(currentFold, folds);
+								currentFold.removeFromParent();
 							}
 							currentFold = parentFold;
 						}
@@ -127,21 +127,6 @@ public class XmlFoldParser implements FoldParser {
 
 		return folds;
 	
-	}
-
-
-	/**
-	 * If this fold has a parent fold, this method removes it from its parent.
-	 * Otherwise, it's assumed to be the most recent (top-level) fold in the
-	 * <code>folds</code> list, and is removed from that.
-	 *
-	 * @param fold The fold to remove.
-	 * @param folds The list of top-level folds.
-	 */
-	private static final void removeFold(Fold fold, List folds) {
-		if (!fold.removeFromParent()) {
-			folds.remove(folds.size()-1);
-		}
 	}
 
 

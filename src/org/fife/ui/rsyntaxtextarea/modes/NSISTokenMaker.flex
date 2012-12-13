@@ -58,7 +58,6 @@ import org.fife.ui.rsyntaxtextarea.*;
 %class NSISTokenMaker
 %extends AbstractJFlexCTokenMaker
 %unicode
-%ignorecase
 %type org.fife.ui.rsyntaxtextarea.Token
 
 
@@ -155,23 +154,22 @@ import org.fife.ui.rsyntaxtextarea.*;
 		this.offsetShift = -text.offset + startOffset;
 
 		// Start off in the proper state.
-		int state = YYINITIAL;
+		int state = Token.NULL;
 		switch (initialTokenType) {
 			case Token.LITERAL_STRING_DOUBLE_QUOTE:
-				state = STRING;
+				state = STRING_DOUBLE_QUOTE;
 				break;
 			case Token.LITERAL_CHAR:
-				state = CHAR_LITERAL;
+				state = STRING_SINGLE_QUOTE;
 				break;
 			case Token.LITERAL_BACKQUOTE:
-				state = BACKTICKS;
+				state = BACKQUOTE;
 				break;
-			case Token.COMMENT_MULTILINE:
-				state = MLC;
-				break;
+			default:
+				state = Token.NULL;
 		}
 
-		start = text.offset;
+				start = text.offset;
 		s = text;
 		try {
 			yyreset(zzReader);
@@ -231,25 +229,59 @@ import org.fife.ui.rsyntaxtextarea.*;
 
 Letter							= ([A-Za-z])
 LetterOrUnderscore				= ({Letter}|"_")
+Underscores						= ([_]+)
 NonzeroDigit						= ([1-9])
+BinaryDigit						= ([0-1])
 Digit							= ("0"|{NonzeroDigit})
 HexDigit							= ({Digit}|[A-Fa-f])
 OctalDigit						= ([0-7])
+AnyCharacterButApostropheOrBackSlash	= ([^\\'])
+AnyCharacterButDoubleQuoteOrBackSlash	= ([^\\\"\n])
 EscapedSourceCharacter				= ("u"{HexDigit}{HexDigit}{HexDigit}{HexDigit})
+Escape							= ("\\"(([btnfr\"'\\])|([0123]{OctalDigit}?{OctalDigit}?)|({OctalDigit}{OctalDigit}?)|{EscapedSourceCharacter}))
 NonSeparator						= ([^\t\f\r\n\ \(\)\{\}\[\]\;\,\.\=\>\<\!\~\?\:\+\-\*\/\&\|\^\%\"\']|"#"|"\\")
-IdentifierStart					= ({LetterOrUnderscore}|[$/])
+IdentifierStart					= ({LetterOrUnderscore}|"$")
 IdentifierPart						= ({IdentifierStart}|{Digit}|("\\"{EscapedSourceCharacter}))
 
 LineTerminator				= (\n)
 WhiteSpace				= ([ \t\f])
 
-MLCBegin					= ("/*")
-MLCEnd						= ("*/")
-LineCommentBegin			= ([;#])
+CharLiteral				= ([\']({AnyCharacterButApostropheOrBackSlash}|{Escape})[\'])
+UnclosedCharLiteral			= ([\'][^\'\n]*)
+ErrorCharLiteral			= ({UnclosedCharLiteral}[\'])
+StringLiteral				= ([\"]({AnyCharacterButDoubleQuoteOrBackSlash}|{Escape})*[\"])
+UnclosedStringLiteral		= ([\"]([\\].|[^\\\"])*[^\"]?)
+ErrorStringLiteral			= ({UnclosedStringLiteral}[\"])
 
-IntegerLiteral				= (({NonzeroDigit}{Digit}*)|"0")
-HexLiteral					= ("0"(([xX]{HexDigit}+)|({OctalDigit}*)))
-ErrorNumberFormat			= (({IntegerLiteral}|{HexLiteral}){NonSeparator}+)
+MLCBegin					= "/*"
+MLCEnd					= "*/"
+DocCommentBegin			= "/**"
+LineCommentBegin			= "//"
+
+DigitOrUnderscore			= ({Digit}|[_])
+DigitsAndUnderscoresEnd		= ({DigitOrUnderscore}*{Digit})
+IntegerHelper				= (({NonzeroDigit}{DigitsAndUnderscoresEnd}?)|"0")
+IntegerLiteral				= ({IntegerHelper}[lL]?)
+
+BinaryDigitOrUnderscore		= ({BinaryDigit}|[_])
+BinaryDigitsAndUnderscores	= ({BinaryDigit}({BinaryDigitOrUnderscore}*{BinaryDigit})?)
+BinaryLiteral				= ("0"[bB]{BinaryDigitsAndUnderscores})
+
+HexDigitOrUnderscore		= ({HexDigit}|[_])
+HexDigitsAndUnderscores		= ({HexDigit}({HexDigitOrUnderscore}*{HexDigit})?)
+OctalDigitOrUnderscore		= ({OctalDigit}|[_])
+OctalDigitsAndUnderscoresEnd= ({OctalDigitOrUnderscore}*{OctalDigit})
+HexHelper					= ("0"(([xX]{HexDigitsAndUnderscores})|({OctalDigitsAndUnderscoresEnd})))
+HexLiteral					= ({HexHelper}[lL]?)
+
+FloatHelper1				= ([fFdD]?)
+FloatHelper2				= ([eE][+-]?{Digit}+{FloatHelper1})
+FloatLiteral1				= ({Digit}+"."({FloatHelper1}|{FloatHelper2}|{Digit}+({FloatHelper1}|{FloatHelper2})))
+FloatLiteral2				= ("."{Digit}+({FloatHelper1}|{FloatHelper2}))
+FloatLiteral3				= ({Digit}+{FloatHelper2})
+FloatLiteral				= ({FloatLiteral1}|{FloatLiteral2}|{FloatLiteral3}|({Digit}+[fFdD]))
+
+ErrorNumberFormat			= (({IntegerLiteral}|{HexLiteral}|{FloatLiteral}){NonSeparator}+)
 BooleanLiteral				= ("true"|"false")
 
 Separator					= ([\(\)\{\}\[\]])
@@ -259,9 +291,15 @@ NonAssignmentOperator		= ("+"|"-"|"<="|"^"|"++"|"<"|"*"|">="|"%"|"--"|">"|"/"|"!
 AssignmentOperator			= ("="|"-="|"*="|"/="|"|="|"&="|"^="|"+="|"%="|"<<="|">>="|">>>=")
 Operator					= ({NonAssignmentOperator}|{AssignmentOperator})
 
+CurrentBlockTag				= ("author"|"deprecated"|"exception"|"param"|"return"|"see"|"serial"|"serialData"|"serialField"|"since"|"throws"|"version")
+ProposedBlockTag			= ("category"|"example"|"tutorial"|"index"|"exclude"|"todo"|"internal"|"obsolete"|"threadsafety")
+BlockTag					= ({CurrentBlockTag}|{ProposedBlockTag})
+InlineTag					= ("code"|"docRoot"|"inheritDoc"|"link"|"linkplain"|"literal"|"value")
+
 Identifier				= ({IdentifierStart}{IdentifierPart}*)
-VariableStart			= ("$")
-Variable				= ({VariableStart}({Identifier}|"{"{Identifier}"}"))
+ErrorIdentifier			= ({NonSeparator}+)
+
+Annotation				= ("@"{Identifier}?)
 
 URLGenDelim				= ([:\/\?#\[\]@])
 URLSubDelim				= ([\!\$&'\(\)\*\+,;=])
@@ -272,11 +310,9 @@ URLEndCharacter			= ([\/\$]|{Letter}|{Digit})
 URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 
-%state STRING
-%state CHAR_LITERAL
-%state BACKTICKS
-%state MLC
-%state EOL_COMMENT
+%state STRING_DOUBLE_QUOTE
+%state STRING_SINGLE_QUOTE
+%state BACKQUOTE
 
 %%
 
@@ -288,7 +324,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"section" |
 	"sectionend" |
 	"subsection" |
-	"subsectionend"				{ addToken(Token.RESERVED_WORD); }
+	"subsectionend" |
 
 	/* Instructions */
 	"addbrandingimage" |
@@ -475,7 +511,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"quit" |
 	"seterrors" |
 	"strcmp" |
-	"strcmps"				{ addToken(Token.FUNCTION); }
+	"strcmps"				{ addToken(Token.RESERVED_WORD); }
 
 	/* Compiler utility commands */
 	"!addincludedir" |
@@ -499,7 +535,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"!else" |
 	"!endif" |
 	"!macro" |
-	"!macroend"				{ addToken(Token.RESERVED_WORD); }
+	"!macroend"				{ addToken(Token.PREPROCESSOR); }
 
 	/* Global variables */
 	"$0" |
@@ -520,13 +556,13 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	/* Local variables */
 	("$R0"{Digit}) |
 
-	/* Constants */
+	<!-- Constants -->
 	"ARCHIVE" |
 	"CENTER" |
 	"CONTROL" |
 	"CUR" |
 	"EXT" |
-	("F"{NonzeroDigit}) |
+	("F"{NonZeroDigit}) |
 	("F1"{Digit}) |
 	("F2"[0-4]) |
 	"FILE_ATTRIBUTE_ARCHIVE" |
@@ -552,6 +588,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"current" |
 	"custom" |
 	"directory" |
+	"false" |
 	"force" |
 	"hide" |
 	"highest" |
@@ -572,6 +609,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"smooth" |
 	"textonly" |
 	"top" |
+	"true" |
 	"try" |
 	"uninstConfirm" |
 	"user" |
@@ -642,21 +680,26 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 	{LineTerminator}				{ addNullToken(); return firstToken; }
 
-	{BooleanLiteral}				{ addToken(Token.LITERAL_BOOLEAN); }
 	{Identifier}					{ addToken(Token.IDENTIFIER); }
-	{Variable}						{ addToken(Token.VARIABLE); }
 
 	{WhiteSpace}+					{ addToken(Token.WHITESPACE); }
 
 	/* String/Character literals. */
-	\"							{ start = zzMarkedPos-1; yybegin(STRING); }
-	\'							{ start = zzMarkedPos-1; yybegin(CHAR_LITERAL); }
-	\`							{ start = zzMarkedPos-1; yybegin(BACKTICKS); }
+	{CharLiteral}					{ addToken(Token.LITERAL_CHAR); }
+	{UnclosedCharLiteral}			{ addToken(Token.ERROR_CHAR); addNullToken(); return firstToken; }
+	{ErrorCharLiteral}				{ addToken(Token.ERROR_CHAR); }
+	{StringLiteral}				{ addToken(Token.LITERAL_STRING_DOUBLE_QUOTE); }
+	{UnclosedStringLiteral}			{ addToken(Token.ERROR_STRING_DOUBLE); addNullToken(); return firstToken; }
+	{ErrorStringLiteral}			{ addToken(Token.ERROR_STRING_DOUBLE); }
 
 	/* Comment literals. */
 	"/**/"						{ addToken(Token.COMMENT_MULTILINE); }
 	{MLCBegin}					{ start = zzMarkedPos-2; yybegin(MLC); }
-	{LineCommentBegin}			{ start = zzMarkedPos-1; yybegin(EOL_COMMENT); }
+	{DocCommentBegin}				{ start = zzMarkedPos-3; yybegin(DOCCOMMENT); }
+	{LineCommentBegin}			{ start = zzMarkedPos-2; yybegin(EOL_COMMENT); }
+
+	/* Annotations. */
+	{Annotation}					{ addToken(Token.ANNOTATION); }
 
 	/* Separators. */
 	{Separator}					{ addToken(Token.SEPARATOR); }
@@ -667,64 +710,24 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 	/* Numbers */
 	{IntegerLiteral}				{ addToken(Token.LITERAL_NUMBER_DECIMAL_INT); }
+	{BinaryLiteral}					{ addToken(Token.LITERAL_NUMBER_DECIMAL_INT); }
 	{HexLiteral}					{ addToken(Token.LITERAL_NUMBER_HEXADECIMAL); }
+	{FloatLiteral}					{ addToken(Token.LITERAL_NUMBER_FLOAT); }
 	{ErrorNumberFormat}				{ addToken(Token.ERROR_NUMBER_FORMAT); }
+
+	{ErrorIdentifier}				{ addToken(Token.ERROR_IDENTIFIER); }
 
 	/* Ended with a line not in a string or comment. */
 	<<EOF>>						{ addNullToken(); return firstToken; }
 
 	/* Catch any other (unhandled) characters and flag them as identifiers. */
-	.							{ addToken(Token.IDENTIFIER); }
+	.							{ addToken(Token.ERROR_IDENTIFIER); }
 
-}
-
-
-<STRING> {
-	[^\n\\\$\"]+		{}
-	\\.					{ /* Skip all escaped chars. */ }
-	\\					{ /* Line ending in '\' => continue to next line. */
-							addToken(start,zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
-							return firstToken;
-						}
-	{Variable}			{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.LITERAL_STRING_DOUBLE_QUOTE); addToken(temp,zzMarkedPos-1, Token.VARIABLE); start = zzMarkedPos; }
-	{VariableStart}		{}
-	\"					{ yybegin(YYINITIAL); addToken(start,zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE); }
-	\n |
-	<<EOF>>				{ addToken(start,zzStartRead-1, Token.ERROR_STRING_DOUBLE); return firstToken; }
-}
-
-
-<CHAR_LITERAL> {
-	[^\n\\\$\']+		{}
-	\\.					{ /* Skip all escaped chars. */ }
-	\\					{ /* Line ending in '\' => continue to next line. */
-							addToken(start,zzStartRead, Token.LITERAL_CHAR);
-							return firstToken;
-						}
-	{Variable}			{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.LITERAL_STRING_DOUBLE_QUOTE); addToken(temp,zzMarkedPos-1, Token.VARIABLE); start = zzMarkedPos; }
-	{VariableStart}		{}
-	\'					{ yybegin(YYINITIAL); addToken(start,zzStartRead, Token.LITERAL_CHAR); }
-	\n |
-	<<EOF>>				{ addToken(start,zzStartRead-1, Token.ERROR_CHAR); return firstToken; }
-}
-
-
-<BACKTICKS> {
-	[^\n\\\$\`]+		{}
-	\\.					{ /* Skip all escaped chars. */ }
-	\\					{ /* Line ending in '\' => continue to next line. */
-							addToken(start,zzStartRead, Token.LITERAL_BACKQUOTE);
-							return firstToken;
-						}
-	{Variable}			{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.LITERAL_BACKQUOTE); addToken(temp,zzMarkedPos-1, Token.VARIABLE); start = zzMarkedPos; }
-	{VariableStart}		{}
-	\`					{ yybegin(YYINITIAL); addToken(start,zzStartRead, Token.LITERAL_BACKQUOTE); }
-	\n |
-	<<EOF>>				{ addToken(start,zzStartRead-1, Token.LITERAL_BACKQUOTE); return firstToken; }
 }
 
 
 <MLC> {
+
 	[^hwf\n\*]+				{}
 	{URL}					{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.COMMENT_MULTILINE); addHyperlinkToken(temp,zzMarkedPos-1, Token.COMMENT_MULTILINE); start = zzMarkedPos; }
 	[hwf]					{}
@@ -733,6 +736,27 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	{MLCEnd}					{ yybegin(YYINITIAL); addToken(start,zzStartRead+1, Token.COMMENT_MULTILINE); }
 	\*						{}
 	<<EOF>>					{ addToken(start,zzStartRead-1, Token.COMMENT_MULTILINE); return firstToken; }
+
+}
+
+
+<DOCCOMMENT> {
+
+	[^hwf\@\{\n\<\*]+			{}
+	{URL}						{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.COMMENT_DOCUMENTATION); addHyperlinkToken(temp,zzMarkedPos-1, Token.COMMENT_DOCUMENTATION); start = zzMarkedPos; }
+	[hwf]						{}
+
+	"@"{BlockTag}				{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.COMMENT_DOCUMENTATION); addToken(temp,zzMarkedPos-1, Token.COMMENT_KEYWORD); start = zzMarkedPos; }
+	"@"							{}
+	"{@"{InlineTag}[^\}]*"}"	{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.COMMENT_DOCUMENTATION); addToken(temp,zzMarkedPos-1, Token.COMMENT_KEYWORD); start = zzMarkedPos; }
+	"{"							{}
+	\n							{ addToken(start,zzStartRead-1, Token.COMMENT_DOCUMENTATION); return firstToken; }
+	"<"[/]?({Letter}[^\>]*)?">"	{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.COMMENT_DOCUMENTATION); addToken(temp,zzMarkedPos-1, Token.COMMENT_MARKUP); start = zzMarkedPos; }
+	\<							{}
+	{MLCEnd}					{ yybegin(YYINITIAL); addToken(start,zzStartRead+1, Token.COMMENT_DOCUMENTATION); }
+	\*							{}
+	<<EOF>>						{ yybegin(YYINITIAL); addToken(start,zzEndRead, Token.COMMENT_DOCUMENTATION); return firstToken; }
+
 }
 
 
@@ -740,6 +764,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	[^hwf\n]+				{}
 	{URL}					{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.COMMENT_EOL); addHyperlinkToken(temp,zzMarkedPos-1, Token.COMMENT_EOL); start = zzMarkedPos; }
 	[hwf]					{}
-	\n |
+	\n						{ addToken(start,zzStartRead-1, Token.COMMENT_EOL); addNullToken(); return firstToken; }
 	<<EOF>>					{ addToken(start,zzStartRead-1, Token.COMMENT_EOL); addNullToken(); return firstToken; }
+
 }

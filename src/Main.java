@@ -37,7 +37,7 @@ public class Main {
 			"text/ruby","text/sas","text/scala","text/sql","text/tcl",
 			"text/unix","text/bat","text/xml"
 	};
-	
+
 	//used for supplying strings when creating JCheckBoxMenuItem
 	final String[] CHECKMENUCODES= {
 			"NONE",	"ACTIONSCRIPT",	"ASSEMBLER_X86","BBCODE","C",
@@ -47,67 +47,73 @@ public class Main {
 			"PHP","PROPERTIES_FILE","PYTHON","RUBY","SAS","SCALA","SQL",	
 			"TCL",	"UNIX_SHELL","WINDOWS_BATCH","XML"
 	};
-	
+
 	boolean fileSaved=false;
-	
+
 	JTabbedPane jTabbedPane=new JTabbedPane();
-	RSyntaxTextArea editor=new RSyntaxTextArea();
+	RSyntaxTextAreaExt editor=new RSyntaxTextAreaExt();
 	RTextScrollPane scroller = new RTextScrollPane(editor);
-	
+
 	JFrame frame=new JFrame("JIGEditor");
 	JMenuBar myMenu=new JMenuBar();
-	
+
 	JMenu file=new JMenu("File");
 	JMenuItem neW=new JMenuItem("New");
 	JMenuItem open=new JMenuItem("Open");
 	JMenuItem save=new JMenuItem("Save");
+	JMenuItem saveAs=new JMenuItem("Save As");
 	JMenuItem close=new JMenuItem("Close");
 	JMenuItem quit=new JMenuItem("Quit");
-	
+
 	JMenu lang=new JMenu("Language");
 	JCheckBoxMenuItem[] langs=new JCheckBoxMenuItem[34];
-	
+
 	JFileChooser fileSave=new JFileChooser();
 	JFileChooser fileOpen=new JFileChooser();
 
 	public static void main(String[] args) {
 		new Main().go();
 	}
-	
+
 	void go(){
-		
+
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK));   // Ctrl + s 
+		saveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));   // Ctrl + Shift + s
 		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,ActionEvent.ALT_MASK));   // Alt + F4
 		neW.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,ActionEvent.CTRL_MASK));    // Ctrl + n
 		close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));  // Ctrl + w
 		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,ActionEvent.CTRL_MASK));   // Ctrl + o
-		
+
 		neW.addActionListener(new neWListener());
 		open.addActionListener(new openListener());
 		save.addActionListener(new saveListener());
+		saveAs.addActionListener(new saveAsListener());
 		close.addActionListener(new closeListener());
 		quit.addActionListener(new quitListener());
-		
+
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
 		file.add(open);
+		file.addSeparator();
 		file.add(save);
+		file.add(saveAs);
 		file.add(close);
+		file.addSeparator();
 		file.add(quit);		
-		
+
 		for(int i=0;i<34;i++)
 			langs[i]=new JCheckBoxMenuItem(CHECKMENUCODES[i]);
-		
+
 		langs[0].setSelected(true);
-		
+
 		lang.setMnemonic('l');		// open up language menu when user presses Alt + l
-		
+
 		for(int i=0;i<34;i++)
 		{
 			langs[i].addActionListener(new langListener(i));
 			lang.add(langs[i]);		// lang is the Language menu
 		}
-		
+
 		myMenu.add(file);
 		myMenu.add(lang);
 		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
@@ -123,17 +129,17 @@ public class Main {
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);		
 	}
-	
+
 	class langListener implements ActionListener{
-		
+
 		int codeNo;
-		
+
 		public langListener(int c) {
 			codeNo=c;
 		}
-		
+
 		public void actionPerformed(ActionEvent e){			
-			
+
 			// first clear all check boxes 
 			for(int i=0;i<34;i++)
 			{
@@ -141,14 +147,14 @@ public class Main {
 			}
 			langs[codeNo].setSelected(true);
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
-        	RSyntaxTextArea editorCur = (RSyntaxTextArea)(cp[0]); 
+        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
         	editorCur.setSyntaxEditingStyle(STYLECODES[codeNo]);
 		}
 	}
-	
+
 	class neWListener implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
-			RSyntaxTextArea editorCur=new RSyntaxTextArea();
+			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
 			editorCur.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_JAVA);			
 			editorCur.setFont(new Font("Courier New", Font.PLAIN, 13));
@@ -165,8 +171,21 @@ public class Main {
 	}
 	class saveListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){
+			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
+        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
+        	if(editorCur.filePath==null){
 			fileSave.showSaveDialog(frame);
-			saveFile(fileSave.getSelectedFile());			
+			saveFile(fileSave.getSelectedFile());
+        	}
+        	else{
+        		saveFile(new File(editorCur.filePath));
+        	}
+		}
+	}
+	class saveAsListener implements ActionListener{
+		public void actionPerformed(ActionEvent e){			
+			fileSave.showSaveDialog(frame);
+			saveFile(fileSave.getSelectedFile());        	
 		}
 	}
 	class closeListener implements ActionListener{
@@ -181,8 +200,9 @@ public class Main {
 		}
 	}
 	void openFile(File file){
-			RSyntaxTextArea editorCur=new RSyntaxTextArea();
+			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
+			editorCur.filePath = file.getAbsolutePath();	//Saves file path for saving without dialog box
 			editorCur.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_JAVA);
 			editorCur.setFont(new Font("Courier New", Font.PLAIN, 13));
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -203,7 +223,8 @@ public class Main {
 		try{
 			jTabbedPane.setTitleAt(jTabbedPane.getSelectedIndex(), file.getName());
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
-        	RSyntaxTextArea editorCur = (RSyntaxTextArea)(cp[0]); 
+        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
+        	editorCur.filePath = file.getAbsolutePath();	//Saves file path for saving without dialog box
 			BufferedWriter writer=new BufferedWriter(new FileWriter(file));
 			writer.write(editorCur.getText());
 			writer.close();
@@ -219,10 +240,11 @@ public class Main {
 		public void windowDeactivated(WindowEvent e) {}
 		public void windowClosed(WindowEvent e) {}
 		public void windowActivated(WindowEvent e) {}
-		
+
 		public void windowClosing(WindowEvent e) {
 			// Will need this method to check if user has saved file before quitting
 		}
 	}
 
 }
+
