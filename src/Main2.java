@@ -24,7 +24,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class Main2 {
-	
+//testing github -- code sharing	
 	//used by langListener to determine highlighting language
 	final String[] STYLECODES={
 			"text/plain","text/actionscript",
