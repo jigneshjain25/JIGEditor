@@ -23,7 +23,7 @@ import javax.swing.*;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-public class Main2 {
+public class Main {
 //testing github -- code sharing	
 	//used by langListener to determine highlighting language
 	final String[] STYLECODES={
@@ -71,7 +71,7 @@ public class Main2 {
 	JFileChooser fileOpen=new JFileChooser();
 
 	public static void main(String[] args) {
-		new Main2().go();
+		new Main().go();
 	}
 	
 	void go(){
