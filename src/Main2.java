@@ -24,106 +24,90 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class Main2 {
+	
+	//used by langListener to determine highlighting language
+	final String[] STYLECODES={
+			"text/plain","text/actionscript",
+			"text/asm","text/bbcode","text/c","text/clojure",
+			"text/cpp","text/cs","text/css","text/delphi",
+			"text/dtd","text/fortran","text/groovy","text/html",
+			"text/java","text/javascript","text/jsp","text/latex",
+			"text/lisp","text/lua","text/makefile","text/mxml",
+			"text/perl","text/php","text/properties","text/python",
+			"text/ruby","text/sas","text/scala","text/sql","text/tcl",
+			"text/unix","text/bat","text/xml"
+	};
+	
+	//used for supplying strings when creating JCheckBoxMenuItem
+	final String[] CHECKMENUCODES= {
+			"NONE",	"ACTIONSCRIPT",	"ASSEMBLER_X86","BBCODE","C",
+			"CLOJURE","CPLUSPLUS","CSHARP",	"CSS","DELPHI","DTD",
+			"FORTRAN","GROOVY",	"HTML",	"JAVA",	"JAVASCRIPT","JSP",
+			"LATEX","LISP",	"LUA",	"MAKEFILE",	"MXML",	"PERL",
+			"PHP","PROPERTIES_FILE","PYTHON","RUBY","SAS","SCALA","SQL",	
+			"TCL",	"UNIX_SHELL","WINDOWS_BATCH","XML"
+	};
+	
 	boolean fileSaved=false;
+	
 	JTabbedPane jTabbedPane=new JTabbedPane();
 	RSyntaxTextArea editor=new RSyntaxTextArea();
 	RTextScrollPane scroller = new RTextScrollPane(editor);
-	JFrame frame=new JFrame("jgEDIT");
+	
+	JFrame frame=new JFrame("JIGEditor");
 	JMenuBar myMenu=new JMenuBar();
+	
 	JMenu file=new JMenu("File");
 	JMenuItem neW=new JMenuItem("New");
 	JMenuItem open=new JMenuItem("Open");
 	JMenuItem save=new JMenuItem("Save");
 	JMenuItem close=new JMenuItem("Close");
 	JMenuItem quit=new JMenuItem("Quit");
-	JFileChooser fileSave=new JFileChooser();
-	JFileChooser fileOpen=new JFileChooser();
+	
 	JMenu lang=new JMenu("Language");
 	JCheckBoxMenuItem[] langs=new JCheckBoxMenuItem[34];
-	String language = "NONE";
-	public enum Style {NONE("text/plain") , ACTIONSCRIPT("text/actionscript"),
-		ASSEMBLER_X86("text/asm"),BBCODE("text/bbcode"),C("text/c"),CLOJURE("text/clojure"),
-		CPLUSPLUS("text/cpp"),CSHARP("text/cs"),CSS("text/css"),DELPHI("text/delphi"),
-		DTD("text/dtd"),FORTRAN("text/fortran"),GROOVY("text/groovy"),HTML("text/html"),
-		JAVA("text/java"),JAVASCRIPT("text/javascript"),JSP("text/jsp"),LATEX("text/latex"),
-		LISP("text/lisp"),LUA("text/lua"),MAKEFILE("text/makefile"),MXML("text/mxml"),
-		PERL("text/perl"),PHP("text/php"),PROPERTIES_FILE("text/properties"),PYTHON("text/python"),
-		RUBY("text/ruby"),SAS("text/sas"),SCALA("text/scala"),SQL("text/sql"),TCL("text/tcl"),
-		UNIX_SHELL("text/unix"),WINDOWS_BATCH("text/bat"),XML("text/xml");
-		
-		private final String val;
-		
-		private Style(String text){
-			val=text;
-		}
-		
-		public String toString(){
-			return val;
-		}
-	};
 	
+	JFileChooser fileSave=new JFileChooser();
+	JFileChooser fileOpen=new JFileChooser();
+
 	public static void main(String[] args) {
 		new Main2().go();
 	}
+	
 	void go(){
-		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK));
-		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,ActionEvent.ALT_MASK));
-		neW.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,ActionEvent.CTRL_MASK));
-		close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));
-		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,ActionEvent.CTRL_MASK));
+		
+		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK));   // Ctrl + s 
+		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,ActionEvent.ALT_MASK));   // Alt + F4
+		neW.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,ActionEvent.CTRL_MASK));    // Ctrl + n
+		close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));  // Ctrl + w
+		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,ActionEvent.CTRL_MASK));   // Ctrl + o
 		
 		neW.addActionListener(new neWListener());
 		open.addActionListener(new openListener());
 		save.addActionListener(new saveListener());
 		close.addActionListener(new closeListener());
 		quit.addActionListener(new quitListener());
-		file.setMnemonic('f');
+		
+		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
 		file.add(open);
 		file.add(save);
 		file.add(close);
 		file.add(quit);		
-		langs[0]=new JCheckBoxMenuItem("NONE");
-		langs[1]=new JCheckBoxMenuItem("ACTIONSCRIPT");
-		langs[2]=new JCheckBoxMenuItem("ASSEMBLER_X86");
-		langs[3]=new JCheckBoxMenuItem("BBCODE");
-		langs[4]=new JCheckBoxMenuItem("C");
-		langs[5]=new JCheckBoxMenuItem("CLOJURE");
-		langs[6]=new JCheckBoxMenuItem("CPLUSPLUS");
-		langs[7]=new JCheckBoxMenuItem("CSHARP");
-		langs[8]=new JCheckBoxMenuItem("CSS");
-		langs[9]=new JCheckBoxMenuItem("DELPHI");
-		langs[10]=new JCheckBoxMenuItem("DTD");
-		langs[11]=new JCheckBoxMenuItem("FORTRAN");
-		langs[12]=new JCheckBoxMenuItem("GROOVY");
-		langs[13]=new JCheckBoxMenuItem("HTML");
-		langs[14]=new JCheckBoxMenuItem("JAVA");
-		langs[15]=new JCheckBoxMenuItem("JAVASCRIPT");
-		langs[16]=new JCheckBoxMenuItem("JSP");
-		langs[17]=new JCheckBoxMenuItem("LATEX");
-		langs[18]=new JCheckBoxMenuItem("LISP");
-		langs[19]=new JCheckBoxMenuItem("LUA");
-		langs[20]=new JCheckBoxMenuItem("MAKEFILE");
-		langs[21]=new JCheckBoxMenuItem("MXML");		
-		langs[22]=new JCheckBoxMenuItem("PERL");
-		langs[23]=new JCheckBoxMenuItem("PHP");
-		langs[24]=new JCheckBoxMenuItem("PROPERTIES_FILE");
-		langs[25]=new JCheckBoxMenuItem("PYTHON");
-		langs[26]=new JCheckBoxMenuItem("RUBY");
-		langs[27]=new JCheckBoxMenuItem("SAS");
-		langs[28]=new JCheckBoxMenuItem("SCALA");
-		langs[29]=new JCheckBoxMenuItem("SQL");
-		langs[30]=new JCheckBoxMenuItem("TCL");
-		langs[31]=new JCheckBoxMenuItem("UNIX_SHELL");
-		langs[32]=new JCheckBoxMenuItem("WINDOWS_BATCH");
-		langs[33]=new JCheckBoxMenuItem("XML");
+		
+		for(int i=0;i<34;i++)
+			langs[i]=new JCheckBoxMenuItem(CHECKMENUCODES[i]);
+		
 		langs[0].setSelected(true);
-		lang.setMnemonic('l');
+		
+		lang.setMnemonic('l');		// open up language menu when user presses Alt + l
+		
 		for(int i=0;i<34;i++)
 		{
-			langs[i].addActionListener(new langListener());
-			lang.add(langs[i]);
+			langs[i].addActionListener(new langListener(i));
+			lang.add(langs[i]);		// lang is the Language menu
 		}
+		
 		myMenu.add(file);
 		myMenu.add(lang);
 		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
@@ -134,67 +118,31 @@ public class Main2 {
 		jTabbedPane.add("Untitled"+(jTabbedPane.getTabCount()+1),scroller);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setJMenuBar(myMenu);
-		frame.addWindowListener(new WindowListener() {
-			
-			public void windowOpened(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowIconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowClosing(WindowEvent e) {
-				// TODO Auto-generated method stub
-			System.out.println("sucess");
-				
-			}
-			
-			@Override
-			public void windowClosed(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowActivated(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		frame.addWindowListener(new myWindowListener());
 		frame.setSize(1100,900);
-		frame.setLocation(85,70);
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);		
 	}
 	
 	class langListener implements ActionListener{
-		public void actionPerformed(ActionEvent e){
-			language = e.getActionCommand();			
+		
+		int codeNo;
+		
+		public langListener(int c) {
+			codeNo=c;
+		}
+		
+		public void actionPerformed(ActionEvent e){			
+			
+			// first clear all check boxes 
 			for(int i=0;i<34;i++)
 			{
-				if(langs[i].getActionCommand().equals(language)) continue;
 				langs[i].setSelected(false);
 			}
+			langs[codeNo].setSelected(true);
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
         	RSyntaxTextArea editorCur = (RSyntaxTextArea)(cp[0]); 
-        	System.out.println(Style.valueOf(language).toString());
-        	editorCur.setSyntaxEditingStyle(Style.valueOf(language).toString());
+        	editorCur.setSyntaxEditingStyle(STYLECODES[codeNo]);
 		}
 	}
 	
@@ -261,6 +209,19 @@ public class Main2 {
 			writer.close();
 		}catch(Exception ex){
 			System.out.println("ERROR WRITING THE FILE");
+		}
+	}
+	class myWindowListener implements WindowListener{
+
+		public void windowOpened(WindowEvent e) {}
+		public void windowIconified(WindowEvent e) {}
+		public void windowDeiconified(WindowEvent e) {}
+		public void windowDeactivated(WindowEvent e) {}
+		public void windowClosed(WindowEvent e) {}
+		public void windowActivated(WindowEvent e) {}
+		
+		public void windowClosing(WindowEvent e) {
+			// Will need this method to check if user has saved file before quitting
 		}
 	}
 
