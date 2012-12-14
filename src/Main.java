@@ -432,13 +432,13 @@ public class Main implements Constants{
 					Component[] cp = jTabbedPane.getComponents();
 					for (int i=0; i<cp.length; i++)
 					{
-							if (i != 1)
-							{
-								RTextScrollPane rt = (RTextScrollPane)(cp[i]);
-								JViewport jv = (JViewport)(rt.getComponent(0));
-								RSyntaxTextAreaExt rs = (RSyntaxTextAreaExt)(jv.getComponent(0));
-								rs.setFont(font);
-							}
+						if (i != 1)
+						{
+							RTextScrollPane rt = (RTextScrollPane)(cp[i]);
+							JViewport jv = (JViewport)(rt.getComponent(0));
+							RSyntaxTextAreaExt rs = (RSyntaxTextAreaExt)(jv.getComponent(0));
+							rs.setFont(font);
+						}
 					}
 					fontFrame.pack();
 					curFont = font;
