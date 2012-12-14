@@ -379,9 +379,9 @@ public class Main {
 					{
 						size = Integer.parseInt(fontsize.getText());
 					}
-					finally
+					catch (Exception e1)
 					{
-						size = 13;
+						size = curFont.getSize();
 					}
 					Font font_dec = null;
 					try 
@@ -389,10 +389,7 @@ public class Main {
 						String name = (String)fontCombo.getSelectedItem();
 						font_dec= java.awt.Font.decode(name);
 					}
-					catch (Exception e)
-					{
-						font_dec = curFont;
-					}
+					finally {}
 					Font font = new Font (font_dec.getFontName(), style, size);
 					Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();
 					for (int i=0; i<cp.length; i++)
