@@ -63,7 +63,9 @@ public class Main implements Constants{
 	JFileChooser fileOpen=new JFileChooser();
 	
 	java.awt.Font curFont = new Font("Courier New", Font.PLAIN, 13);
-
+	String[] fontSizes = new String[48];
+    
+    
 	public static void main(String[] args) {
 		Main o=new Main();
 		RSyntaxTextAreaExt.obj=o;
@@ -71,7 +73,8 @@ public class Main implements Constants{
 	}
 
 	void go(){
-
+		for (int i=1; i<49; i++)
+	       	fontSizes[i-1] = Integer.toString(i);
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK));   // Ctrl + s 
 		saveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));   // Ctrl + Shift + s
 		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,ActionEvent.ALT_MASK));   // Alt + F4
@@ -127,7 +130,7 @@ public class Main implements Constants{
 			langs[i].addActionListener(new langListener(i));
 			lang.add(langs[i]);		// lang is the Language menu
 		}
-
+		
 		myMenu.add(file);
 		myMenu.add(edit);
 		myMenu.add(lang);
@@ -293,96 +296,102 @@ public class Main implements Constants{
 	        String[] fontNames = ge.getAvailableFontFamilyNames();
 	        fontCombo = new JComboBox(fontNames);
 	        final JFrame fontFrame = new JFrame("Font Selection");
-	        fontFrame.setAlwaysOnTop(true);
+	        //fontFrame.setAlwaysOnTop(true);
 	        fontFrame.setLocation(300, 300);
 	        final JRadioButton plain = new JRadioButton ("Plain");
 	        final JRadioButton bold = new JRadioButton ("Bold");
 	        final JRadioButton italic = new JRadioButton ("Italic");
 	        final JRadioButton bni = new JRadioButton ("B&I");
-	        final JTextField fontsize = new JTextField ();
+	        //final JTextField fontsize = new JTextField ();
 	        JLabel fs = new JLabel ("Select Font");
 	        JLabel ss = new JLabel ("Select Font Size");
 	        JLabel sst = new JLabel ("Select Font Style");
-	        fontsize.setToolTipText("Font Size");
-	        JPanel style = new JPanel();
-	        style.setLayout(new BoxLayout(style, BoxLayout.Y_AXIS));
-	        JPanel fontspec = new JPanel();
+	        //fontsize.setToolTipText("Font Size");
+	        final JPanel style1 = new JPanel();
+	        final JComboBox fontSize = new JComboBox (fontSizes);
+	        style1.setLayout(new BoxLayout(style1, BoxLayout.Y_AXIS));
+	        final JPanel fontspec = new JPanel();
 	        fontspec.setLayout(new BoxLayout(fontspec, BoxLayout.Y_AXIS));
-	        JPanel buttons = new JPanel ();
+	        final JPanel buttons = new JPanel ();
 	        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
-	        JLabel blank = new JLabel ("      ");
 	        JButton cancel = new JButton("Cancel");
 	        JButton ok = new JButton ("OK");
+	        final JLabel sample = new JLabel ("The Quick Brown Fox Jumps Over The Lazy Dog");
+	        JPanel sampleText = new JPanel ();
 	        ButtonGroup group = new ButtonGroup();
+	        final JButton preview = new JButton("Preview");
+	        sample.setFont(curFont);
 	        fontspec.add(fs);
 	        fontspec.add(fontCombo);
 	        fontspec.add(ss);
-	        fontspec.add(fontsize);
-	        fontspec.add(blank);
-	        fontspec.add(blank);
-	        fontspec.add(blank);
+	        fontspec.add(fontSize);
 	        group.add(plain);
 	        group.add(bold);
 	        group.add(italic);
 	        group.add(bni);
-	        style.add(sst);
-	        style.add(plain);
-	        style.add(bold);
-	        style.add(italic);
-	        style.add(bni);
+	        style1.add(sst);
+	        style1.add(plain);
+	        style1.add(bold);
+	        style1.add(italic);
+	        style1.add(bni);
+	        buttons.add(preview);
 	        buttons.add(ok);
-	        buttons.add(blank);
 	        buttons.add(cancel);
-	        fontFrame.add(style, BorderLayout.EAST);
+	        sampleText.add(sample);
+	        fontFrame.add(style1, BorderLayout.EAST);
+	        fontFrame.add(sampleText, BorderLayout.NORTH);
 	        fontFrame.add(buttons, BorderLayout.SOUTH);
 	        fontFrame.add(fontspec, BorderLayout.CENTER);
-	        fontFrame.setSize(350, 160);
-	        fontFrame.setResizable(false);
+	        fontFrame.pack();
 	        fontFrame.setVisible(true);
-	        fontCombo.addActionListener(new ActionListener ()
+	        preview.addActionListener(new ActionListener()
 	        {
-				public void actionPerformed(ActionEvent e)
-				{
-					int style = curFont.getStyle();
-					if (plain.isSelected())
-						style = java.awt.Font.PLAIN;
-					else if (bold.isSelected())
-						style = java.awt.Font.BOLD;
-					else if (italic.isSelected())
-						style = java.awt.Font.ITALIC;
-					else if (bni.isSelected())
-						style = java.awt.Font.BOLD | java.awt.Font.ITALIC;
-					String sizeoffont = fontsize.getText();
-					int size = curFont.getSize();
-					try
+	        		boolean firstTime = true;
+					public void actionPerformed(ActionEvent e)
 					{
-						size = Integer.parseInt(fontsize.getText());
+						
+						//fontFrame.repaint();
+						int style = curFont.getStyle();
+						if (plain.isSelected())
+							style = java.awt.Font.PLAIN;
+						else if (bold.isSelected())
+							style = java.awt.Font.BOLD;
+						else if (italic.isSelected())
+							style = java.awt.Font.ITALIC;
+						else if (bni.isSelected())
+							style = java.awt.Font.BOLD | java.awt.Font.ITALIC;
+						String sizeoffont = (String)fontSize.getSelectedItem();
+						int size = curFont.getSize();
+						try
+						{
+							size = Integer.parseInt(sizeoffont);
+						}
+						catch (Exception e1)
+						{
+							size = curFont.getSize();
+						}
+						Font font_dec = null;
+						try 
+						{
+							String name = (String)fontCombo.getSelectedItem();
+							font_dec= java.awt.Font.decode(name);
+						}
+						finally {}
+						Font font = new Font (font_dec.getFontName(), style, size);
+						sample.setFont(font);
+						//fontFrame.repaint();
+						if (sample.getWidth() > fontFrame.getWidth())
+							fontFrame.setSize(sample.getWidth(), fontFrame.getHeight());
+						int height = sample.getHeight() + buttons.getHeight() +  (fontspec.getHeight() > style1.getHeight() ? fontspec.getHeight() : style1.getHeight());
+						fontFrame.setSize(fontFrame.getWidth(), height);
 					}
-					catch (Exception e1)
-					{
-						size = curFont.getSize();
-					}
-					Font font_dec = null;
-					try 
-					{
-						String name = (String)fontCombo.getSelectedItem();
-						font_dec= java.awt.Font.decode(name);
-					}
-					finally {}
-					Font font = new Font (font_dec.getFontName(), style, size);
-					Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();
-					for (int i=0; i<cp.length; i++)
-					{
-						RSyntaxTextAreaExt r = (RSyntaxTextAreaExt)(cp[i]);
-						r.setFont(font);
-					}
-				}
-	        
+	        	
 	        });
 	        ok.addActionListener(new ActionListener ()
 	        {
 				public void actionPerformed(ActionEvent e)
 				{
+					fontFrame.repaint();
 					int style = curFont.getStyle();
 					if (plain.isSelected())
 						style = java.awt.Font.PLAIN;
@@ -392,11 +401,11 @@ public class Main implements Constants{
 						style = java.awt.Font.ITALIC;
 					else if (bni.isSelected())
 						style = java.awt.Font.BOLD | java.awt.Font.ITALIC;
-					String sizeoffont = fontsize.getText();
+					String sizeoffont = (String)fontSize.getSelectedItem();
 					int size = curFont.getSize();
 					try
 					{
-						size = Integer.parseInt(fontsize.getText());
+						size = Integer.parseInt(sizeoffont);
 					}
 					finally
 					{
@@ -410,8 +419,10 @@ public class Main implements Constants{
 						RSyntaxTextAreaExt r = (RSyntaxTextAreaExt)(cp[i]);
 						r.setFont(font);
 					}
+					fontFrame.pack();
 					curFont = font;
 					fontFrame.dispose();
+					
 				}
 	        
 	        });
@@ -425,6 +436,7 @@ public class Main implements Constants{
 	        	
 	        });
 		}
+		
 	}
 	class undoListener implements ActionListener{
 		public void actionPerformed(ActionEvent arg0) {
