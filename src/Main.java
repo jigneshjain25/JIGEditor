@@ -1,7 +1,9 @@
+import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Component;
 import java.awt.GraphicsEnvironment;
+import java.awt.KeyboardFocusManager;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -16,6 +18,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.*;
 
@@ -27,9 +31,12 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rtextarea.RecordableTextAction;
 
 public class Main implements Constants{
-	//issues to do
-	//updating lang check box when update in RSyntaxTextAreaExt
+//testing github -- code sharing	
 	
+	boolean fileSaved=false;
+	
+	int tabCnt=1;			//Counts total tabs created	
+
 	JTabbedPane jTabbedPane=new JTabbedPane();
 	RSyntaxTextAreaExt editor=new RSyntaxTextAreaExt();
 	RTextScrollPane scroller = new RTextScrollPane(editor);
@@ -53,6 +60,7 @@ public class Main implements Constants{
 	JMenuItem cut=new JMenuItem("Cut");
 	JMenuItem paste=new JMenuItem("Paste");
 	JMenuItem FontMenu = new JMenuItem ("Font");	
+	JMenuItem preferences = new JMenuItem ("Preferences");
 
 	JMenu lang=new JMenu("Language");
 	JCheckBoxMenuItem[] langs=new JCheckBoxMenuItem[34];
@@ -64,8 +72,7 @@ public class Main implements Constants{
 	
 	java.awt.Font curFont = new Font("Courier New", Font.PLAIN, 13);
 	String[] fontSizes = new String[48];
-    
-    
+
 	public static void main(String[] args) {
 		Main o=new Main();
 		RSyntaxTextAreaExt.obj=o;
@@ -73,8 +80,7 @@ public class Main implements Constants{
 	}
 
 	void go(){
-		for (int i=1; i<49; i++)
-	       	fontSizes[i-1] = Integer.toString(i);
+
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK));   // Ctrl + s 
 		saveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));   // Ctrl + Shift + s
 		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,ActionEvent.ALT_MASK));   // Alt + F4
@@ -130,26 +136,30 @@ public class Main implements Constants{
 			langs[i].addActionListener(new langListener(i));
 			lang.add(langs[i]);		// lang is the Language menu
 		}
-		
+
 		myMenu.add(file);
 		myMenu.add(edit);
 		myMenu.add(lang);
 		
-		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		setupTabTraversalKeys(jTabbedPane);
+		
+		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
+		editor.setFont(new Font("Courier New", Font.PLAIN, 13));
+		
+		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		//frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.add(jTabbedPane);
 		ButtonTabComponent btc = new ButtonTabComponent(jTabbedPane);
-		jTabbedPane.add("Untitled"+(jTabbedPane.getTabCount()+1),scroller);
-		jTabbedPane.setTabComponentAt(jTabbedPane.getTabCount()-1, btc);
-		editor.requestFocusInWindow();
+		jTabbedPane.add("Untitled"+(tabCnt++),scroller);
+		jTabbedPane.setTabComponentAt(jTabbedPane.getTabCount()-1, btc);		
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setJMenuBar(myMenu);
 		frame.addWindowListener(new myWindowListener());
-		frame.setSize(800,700);
+		frame.setSize(1100,900);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);	
-		editor.requestFocus();
+		editor.requestFocusInWindow();
 	}
 
 	class langListener implements ActionListener{
@@ -167,9 +177,10 @@ public class Main implements Constants{
 			{
 				langs[i].setSelected(false);
 			}
-			langs[codeNo].setSelected(true);
+			langs[codeNo].setSelected(true);			
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
-        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
+        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]);
+        	editorCur.syntaxCode = codeNo;
         	editorCur.setSyntaxEditingStyle(STYLECODES[codeNo]);
 		}
 	}
@@ -178,11 +189,14 @@ public class Main implements Constants{
 		public void actionPerformed(ActionEvent e) {
 			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
+			editorCur.setSyntaxEditingStyle(STYLECODES[editorCur.syntaxCode]);			
+			editorCur.setFont(new Font("Courier New", Font.PLAIN, 13));
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			ButtonTabComponent btc = new ButtonTabComponent(jTabbedPane);
-			jTabbedPane.add("Untitled"+(jTabbedPane.getTabCount()+1),scrollerCur); 
+			jTabbedPane.add("Untitled"+(tabCnt++),scrollerCur); 
 			jTabbedPane.setTabComponentAt(jTabbedPane.getTabCount()-1, btc);
-        	jTabbedPane.setSelectedIndex(jTabbedPane.getTabCount()-1);			
+        	jTabbedPane.setSelectedIndex(jTabbedPane.getTabCount()-1);		
+        	editorCur.requestFocusInWindow();
 		}
 	}
 	class openListener implements ActionListener{
@@ -196,19 +210,23 @@ public class Main implements Constants{
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
         	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
         	if(editorCur.file==null){
-        		fileSave.showSaveDialog(frame);
-        		saveFile(fileSave.getSelectedFile());
+			int val = fileSave.showSaveDialog(frame);
+			if(val==fileSave.APPROVE_OPTION)				
+				if(fileSave.getSelectedFile()!=null)
+					saveFile(fileSave.getSelectedFile());
         	}
-        	else{
-        		if(editorCur.canUndo())
-        		saveFile(editorCur.file);
+			else{
+        		if(editorCur.canUndo())        			        		
+        			saveFile(new File(editorCur.file.getAbsolutePath()));        				        		
         	}
 		}
 	}
 	class saveAsListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){			
-			fileSave.showSaveDialog(frame);
-			saveFile(fileSave.getSelectedFile());        	
+			int val = fileSave.showSaveDialog(frame);
+			if(val==fileSave.APPROVE_OPTION)				
+				if(fileSave.getSelectedFile()!=null)
+					saveFile(fileSave.getSelectedFile());
 		}
 	}
 	class closeListener implements ActionListener{
@@ -223,19 +241,24 @@ public class Main implements Constants{
 		}
 	}
 	void openFile(File file){
-			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt(file);
+			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
+			//editorCur.filePath = file.getAbsolutePath();	//Saves file path for saving without dialog box
+			editorCur.setSyntaxEditingStyle(STYLECODES[editorCur.syntaxCode]);
+			editorCur.setFont(new Font("Courier New", Font.PLAIN, 13));
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			ButtonTabComponent btc = new ButtonTabComponent(jTabbedPane);
 			jTabbedPane.add(file.getName(),scrollerCur); 
+			jTabbedPane.setTabComponentAt(jTabbedPane.getTabCount()-1, btc);
 			jTabbedPane.setSelectedIndex(jTabbedPane.getTabCount()-1);	        						     
-			try{	
-				FileReader fileReader=new FileReader(file);
-				BufferedReader reader=new BufferedReader(fileReader);
-				String line=null;
-				while((line=reader.readLine())!=null)
-					editorCur.append(line+"\n");
-		
-			}catch(Exception ex){
+		try{	
+			FileReader fileReader=new FileReader(file);
+			BufferedReader reader=new BufferedReader(fileReader);
+			String line=null;
+			while((line=reader.readLine())!=null)
+				editorCur.append(line+"\n");
+			fileSaved=true;
+		}catch(Exception ex){
 			System.out.println("ERROR OPENING THE FILE");
 		}
 		editorCur.requestFocusInWindow();
@@ -245,7 +268,7 @@ public class Main implements Constants{
 			jTabbedPane.setTitleAt(jTabbedPane.getSelectedIndex(), file.getName());
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
         	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
-        	editorCur.update(file);	//Saves file path for saving without dialog box
+        	editorCur.file = file;				//Saves file path for saving without dialog box
 			BufferedWriter writer=new BufferedWriter(new FileWriter(file));
 			writer.write(editorCur.getText());
 			writer.close();
@@ -308,7 +331,7 @@ public class Main implements Constants{
 	        JLabel sst = new JLabel ("Select Font Style");
 	        //fontsize.setToolTipText("Font Size");
 	        final JPanel style1 = new JPanel();
-	        final JComboBox fontSize = new JComboBox (fontSizes);
+	        final JComboBox fontSize = new JComboBox(fontSizes);
 	        style1.setLayout(new BoxLayout(style1, BoxLayout.Y_AXIS));
 	        final JPanel fontspec = new JPanel();
 	        fontspec.setLayout(new BoxLayout(fontspec, BoxLayout.Y_AXIS));
@@ -450,4 +473,24 @@ public class Main implements Constants{
 		}
 		
 	}
+	 private void setupTabTraversalKeys(JTabbedPane tabbedPane)
+	  {
+	    KeyStroke ctrlTab = KeyStroke.getKeyStroke("ctrl TAB");
+	    KeyStroke ctrlShiftTab = KeyStroke.getKeyStroke("ctrl shift TAB");
+	 
+	    // Remove ctrl-tab from normal focus traversal
+	    Set<AWTKeyStroke> forwardKeys = new HashSet<AWTKeyStroke>(tabbedPane.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+	    forwardKeys.remove(ctrlTab);
+	    tabbedPane.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, forwardKeys);
+	 
+	    // Remove ctrl-shift-tab from normal focus traversal
+	    Set<AWTKeyStroke> backwardKeys = new HashSet<AWTKeyStroke>(tabbedPane.getFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS));
+	    backwardKeys.remove(ctrlShiftTab);
+	    tabbedPane.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, backwardKeys);
+	 
+	    // Add keys to the tab's input map
+	    InputMap inputMap = tabbedPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+	    inputMap.put(ctrlTab, "navigateNext");
+	    inputMap.put(ctrlShiftTab, "navigatePrevious");	    
+	  }
 }
