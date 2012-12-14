@@ -383,8 +383,16 @@ public class Main {
 					{
 						size = 13;
 					}
-					String name = (String)fontCombo.getSelectedItem();
-					Font font_dec = java.awt.Font.decode(name);
+					Font font_dec = null;
+					try 
+					{
+						String name = (String)fontCombo.getSelectedItem();
+						font_dec= java.awt.Font.decode(name);
+					}
+					catch (Exception e)
+					{
+						font_dec = curFont;
+					}
 					Font font = new Font (font_dec.getFontName(), style, size);
 					Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();
 					for (int i=0; i<cp.length; i++)
