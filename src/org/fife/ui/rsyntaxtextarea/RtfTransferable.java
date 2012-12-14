@@ -24,7 +24,7 @@ import java.io.StringReader;
  * @author Robert Futrell
  * @version 1.0
  */
-class RtfTransferable implements Transferable {
+public class RtfTransferable implements Transferable {
 
 	/**
 	 * The RTF data, in bytes (the RTF is 7-bit ascii).

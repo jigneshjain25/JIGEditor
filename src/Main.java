@@ -1,5 +1,9 @@
 import java.awt.Font;
 import java.awt.Component;
+import java.awt.GraphicsEnvironment;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -10,18 +14,15 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
 import javax.swing.*;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.GoToMatchingBracketAction;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.fife.ui.rtextarea.RecordableTextAction;
 
 public class Main {
 //testing github -- code sharing	
@@ -55,24 +56,33 @@ public class Main {
 	RTextScrollPane scroller = new RTextScrollPane(editor);
 
 	JFrame frame=new JFrame("JIGEditor");
+	
 	JMenuBar myMenu=new JMenuBar();
 
-	JMenu file=new JMenu("File");
+	JMenu file=new JMenu("File");	
 	JMenuItem neW=new JMenuItem("New");
 	JMenuItem open=new JMenuItem("Open");
 	JMenuItem save=new JMenuItem("Save");
 	JMenuItem saveAs=new JMenuItem("Save As");
 	JMenuItem close=new JMenuItem("Close");
 	JMenuItem quit=new JMenuItem("Quit");
+	
+	JMenu edit=new JMenu("Edit");
+	JMenuItem Copy=new JMenuItem("Copy");
+	JMenuItem cut=new JMenuItem("Cut");
+	JMenuItem paste=new JMenuItem("Paste");
+	JMenuItem FontMenu = new JMenuItem ("Font");
 
 	JMenu lang=new JMenu("Language");
 	JCheckBoxMenuItem[] langs=new JCheckBoxMenuItem[34];
+		
+	JComboBox fontCombo;
 
 	JFileChooser fileSave=new JFileChooser();
 	JFileChooser fileOpen=new JFileChooser();
 
 	public static void main(String[] args) {
-		new Main().go();
+		new Main().go();		
 	}
 
 	void go(){
@@ -83,6 +93,9 @@ public class Main {
 		neW.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,ActionEvent.CTRL_MASK));    // Ctrl + n
 		close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));  // Ctrl + w
 		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,ActionEvent.CTRL_MASK));   // Ctrl + o
+		Copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK));	//Ctrl + c
+		cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,ActionEvent.CTRL_MASK));	//Ctrl + x
+		paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK));	//Ctrl + v
 
 		neW.addActionListener(new neWListener());
 		open.addActionListener(new openListener());
@@ -90,6 +103,10 @@ public class Main {
 		saveAs.addActionListener(new saveAsListener());
 		close.addActionListener(new closeListener());
 		quit.addActionListener(new quitListener());
+		Copy.addActionListener(new CopyListener());
+		cut.addActionListener(new cutListener());
+		paste.addActionListener(new pasteListener());
+		FontMenu.addActionListener(new FontListener());
 
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
@@ -100,13 +117,18 @@ public class Main {
 		file.add(close);
 		file.addSeparator();
 		file.add(quit);		
-
-		for(int i=0;i<34;i++)
-			langs[i]=new JCheckBoxMenuItem(CHECKMENUCODES[i]);
-
-		langs[0].setSelected(true);
+		
+		edit.setMnemonic('e');		// open up edit menu when user presses Alt + e
+		edit.add(Copy);
+		edit.add(cut);
+		edit.add(paste);
+		edit.addSeparator();
+		edit.add(FontMenu);
 
 		lang.setMnemonic('l');		// open up language menu when user presses Alt + l
+		for(int i=0;i<34;i++)
+			langs[i]=new JCheckBoxMenuItem(CHECKMENUCODES[i]);
+		langs[0].setSelected(true);		
 
 		for(int i=0;i<34;i++)
 		{
@@ -115,19 +137,24 @@ public class Main {
 		}
 
 		myMenu.add(file);
+		myMenu.add(edit);
 		myMenu.add(lang);
+		
 		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
 		editor.setFont(new Font("Courier New", Font.PLAIN, 13));
 		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		//frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.add(jTabbedPane);
 		jTabbedPane.add("Untitled"+(jTabbedPane.getTabCount()+1),scroller);
+		editor.requestFocusInWindow();
+		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setJMenuBar(myMenu);
 		frame.addWindowListener(new myWindowListener());
 		frame.setSize(1100,900);
 		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);		
+		frame.setVisible(true);	
+		editor.requestFocus();
 	}
 
 	class langListener implements ActionListener{
@@ -178,6 +205,7 @@ public class Main {
 			saveFile(fileSave.getSelectedFile());
         	}
         	else{
+        		if(editorCur.canUndo())
         		saveFile(new File(editorCur.filePath));
         	}
 		}
@@ -245,6 +273,86 @@ public class Main {
 			// Will need this method to check if user has saved file before quitting
 		}
 	}
-
+	class CopyListener implements ActionListener{
+		public void actionPerformed(ActionEvent e){
+			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
+        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
+        	editorCur.copyAsRtf();
+		}
+	}
+	class cutListener implements ActionListener{
+		public void actionPerformed(ActionEvent e){
+			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
+        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
+        	editorCur.copyAsRtf();
+			editorCur.replaceSelection("");			
+		}
+	}
+	class pasteListener implements ActionListener{
+		public void actionPerformed(ActionEvent e){
+			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
+        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
+        	RSyntaxTextAreaEditorKit rstaek = new RSyntaxTextAreaEditorKit();
+        	Transferable clipData = editorCur.cb.getContents(editorCur.cb);
+            if (clipData != null) {
+              try {
+                if 
+                  (clipData.isDataFlavorSupported
+				    (DataFlavor.stringFlavor)) {
+                      String s = (String)(clipData.getTransferData(
+                        DataFlavor.stringFlavor));
+                  editorCur.replaceSelection(s);
+                }
+              } catch (UnsupportedFlavorException ufe) {
+                System.err.println("Flavor unsupported: " + ufe);
+              } catch (IOException ioe) {
+                System.err.println("Data not available: " + ioe);
+              }
+		}
+	}
 }
+	class FontListener implements ActionListener {
 
+		public void actionPerformed(ActionEvent e)
+		{
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();  
+	        String[] fontNames = ge.getAvailableFontFamilyNames();
+	        fontCombo = new JComboBox(fontNames);
+	        final JFrame fontFrame = new JFrame("Font Selection");
+	        fontFrame.setAlwaysOnTop(true);
+	        fontFrame.setLocation(300, 300);
+	        fontFrame.setSize(450, 80);
+	        JPanel jp = new JPanel();
+	        final java.awt.Font curFont = editor.getFont();
+	        JButton cancel = new JButton("Cancel");
+	        JButton ok = new JButton ("OK");
+	        jp.add(fontCombo);
+	        fontFrame.add(jp);
+	        jp.add(ok);
+	        jp.add(cancel);
+	        fontFrame.setVisible(true);
+	        ok.addActionListener(new ActionListener ()
+	        {
+				public void actionPerformed(ActionEvent e)
+				{
+					String name = (String)fontCombo.getSelectedItem();
+					Font font = java.awt.Font.decode(name).deriveFont(24f);
+					editor.setFont(font);
+					fontFrame.dispose();
+					
+				}
+	        
+	        });
+	        cancel.addActionListener(new ActionListener ()
+	        {
+				public void actionPerformed(ActionEvent e)
+				{
+					editor.setFont(curFont);
+					fontFrame.dispose();
+				}
+	        	
+	        });
+
+		}
+	}
+}
