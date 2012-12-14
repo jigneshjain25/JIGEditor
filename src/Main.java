@@ -26,33 +26,10 @@ import org.fife.ui.rtextarea.RTextAreaEditorKit;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rtextarea.RecordableTextAction;
 
-public class Main {
-//testing github -- code sharing	
-	//used by langListener to determine highlighting language
-	final String[] STYLECODES={
-			"text/plain","text/actionscript",
-			"text/asm","text/bbcode","text/c","text/clojure",
-			"text/cpp","text/cs","text/css","text/delphi",
-			"text/dtd","text/fortran","text/groovy","text/html",
-			"text/java","text/javascript","text/jsp","text/latex",
-			"text/lisp","text/lua","text/makefile","text/mxml",
-			"text/perl","text/php","text/properties","text/python",
-			"text/ruby","text/sas","text/scala","text/sql","text/tcl",
-			"text/unix","text/bat","text/xml"
-	};
-
-	//used for supplying strings when creating JCheckBoxMenuItem
-	final String[] CHECKMENUCODES= {
-			"NONE",	"ACTIONSCRIPT",	"ASSEMBLER_X86","BBCODE","C",
-			"CLOJURE","CPLUSPLUS","CSHARP",	"CSS","DELPHI","DTD",
-			"FORTRAN","GROOVY",	"HTML",	"JAVA",	"JAVASCRIPT","JSP",
-			"LATEX","LISP",	"LUA",	"MAKEFILE",	"MXML",	"PERL",
-			"PHP","PROPERTIES_FILE","PYTHON","RUBY","SAS","SCALA","SQL",	
-			"TCL",	"UNIX_SHELL","WINDOWS_BATCH","XML"
-	};
-
-	boolean fileSaved=false;
-
+public class Main implements Constants{
+	//issues to do
+	//updating lang check box when update in RSyntaxTextAreaExt
+	
 	JTabbedPane jTabbedPane=new JTabbedPane();
 	RSyntaxTextAreaExt editor=new RSyntaxTextAreaExt();
 	RTextScrollPane scroller = new RTextScrollPane(editor);
@@ -153,8 +130,6 @@ public class Main {
 		myMenu.add(edit);
 		myMenu.add(lang);
 		
-		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
-		editor.setFont(new Font("Courier New", Font.PLAIN, 13));
 		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		//frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.add(jTabbedPane);
@@ -166,7 +141,7 @@ public class Main {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setJMenuBar(myMenu);
 		frame.addWindowListener(new myWindowListener());
-		frame.setSize(1100,900);
+		frame.setSize(800,700);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);	
 		editor.requestFocus();
@@ -198,8 +173,6 @@ public class Main {
 		public void actionPerformed(ActionEvent e) {
 			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
-			editorCur.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);			
-			editorCur.setFont(new Font("Courier New", Font.PLAIN, 13));
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			ButtonTabComponent btc = new ButtonTabComponent(jTabbedPane);
 			jTabbedPane.add("Untitled"+(jTabbedPane.getTabCount()+1),scrollerCur); 
@@ -217,13 +190,13 @@ public class Main {
 		public void actionPerformed(ActionEvent e){
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
         	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
-        	if(editorCur.filePath==null){
-			fileSave.showSaveDialog(frame);
-			saveFile(fileSave.getSelectedFile());
+        	if(editorCur.file==null){
+        		fileSave.showSaveDialog(frame);
+        		saveFile(fileSave.getSelectedFile());
         	}
         	else{
         		if(editorCur.canUndo())
-        		saveFile(new File(editorCur.filePath));
+        		saveFile(editorCur.file);
         	}
 		}
 	}
@@ -245,22 +218,19 @@ public class Main {
 		}
 	}
 	void openFile(File file){
-			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
+			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt(file);
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
-			editorCur.filePath = file.getAbsolutePath();	//Saves file path for saving without dialog box
-			editorCur.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);
-			editorCur.setFont(new Font("Courier New", Font.PLAIN, 13));
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			jTabbedPane.add(file.getName(),scrollerCur); 
 			jTabbedPane.setSelectedIndex(jTabbedPane.getTabCount()-1);	        						     
-		try{	
-			FileReader fileReader=new FileReader(file);
-			BufferedReader reader=new BufferedReader(fileReader);
-			String line=null;
-			while((line=reader.readLine())!=null)
-				editorCur.append(line+"\n");
-			fileSaved=true;
-		}catch(Exception ex){
+			try{	
+				FileReader fileReader=new FileReader(file);
+				BufferedReader reader=new BufferedReader(fileReader);
+				String line=null;
+				while((line=reader.readLine())!=null)
+					editorCur.append(line+"\n");
+		
+			}catch(Exception ex){
 			System.out.println("ERROR OPENING THE FILE");
 		}
 		editorCur.requestFocusInWindow();
@@ -270,7 +240,7 @@ public class Main {
 			jTabbedPane.setTitleAt(jTabbedPane.getSelectedIndex(), file.getName());
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
         	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
-        	editorCur.filePath = file.getAbsolutePath();	//Saves file path for saving without dialog box
+        	editorCur.update(file);	//Saves file path for saving without dialog box
 			BufferedWriter writer=new BufferedWriter(new FileWriter(file));
 			writer.write(editorCur.getText());
 			writer.close();
