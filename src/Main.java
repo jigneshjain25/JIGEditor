@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Component;
 import java.awt.GraphicsEnvironment;
@@ -58,7 +59,7 @@ public class Main {
 	JFrame frame=new JFrame("JIGEditor");
 	
 	JMenuBar myMenu=new JMenuBar();
-
+	java.awt.Font curFont = new Font("Courier New", Font.PLAIN, 13);
 	JMenu file=new JMenu("File");	
 	JMenuItem neW=new JMenuItem("New");
 	JMenuItem open=new JMenuItem("Open");
@@ -141,7 +142,7 @@ public class Main {
 		myMenu.add(lang);
 		
 		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
-		editor.setFont(new Font("Courier New", Font.PLAIN, 13));
+		editor.setFont(curFont);
 		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		//frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.add(jTabbedPane);
@@ -184,7 +185,7 @@ public class Main {
 			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
 			editorCur.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_JAVA);			
-			editorCur.setFont(new Font("Courier New", Font.PLAIN, 13));
+			editorCur.setFont(curFont);
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			jTabbedPane.add("Untitled"+(jTabbedPane.getTabCount()+1),scrollerCur); 
         	jTabbedPane.setSelectedIndex(jTabbedPane.getTabCount()-1);			
@@ -321,25 +322,118 @@ public class Main {
 	        final JFrame fontFrame = new JFrame("Font Selection");
 	        fontFrame.setAlwaysOnTop(true);
 	        fontFrame.setLocation(300, 300);
-	        fontFrame.setSize(450, 80);
-	        JPanel jp = new JPanel();
-	        final java.awt.Font curFont = editor.getFont();
+	        final JRadioButton plain = new JRadioButton ("Plain");
+	        final JRadioButton bold = new JRadioButton ("Bold");
+	        final JRadioButton italic = new JRadioButton ("Italic");
+	        final JRadioButton bni = new JRadioButton ("B&I");
+	        final JTextField fontsize = new JTextField ();
+	        JLabel fs = new JLabel ("Select Font");
+	        JLabel ss = new JLabel ("Select Font Size");
+	        JLabel sst = new JLabel ("Select Font Style");
+	        fontsize.setToolTipText("Font Size");
+	        JPanel style = new JPanel();
+	        style.setLayout(new BoxLayout(style, BoxLayout.Y_AXIS));
+	        JPanel fontspec = new JPanel();
+	        fontspec.setLayout(new BoxLayout(fontspec, BoxLayout.Y_AXIS));
+	        JPanel buttons = new JPanel ();
+	        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
+	        JLabel blank = new JLabel ("      ");
 	        JButton cancel = new JButton("Cancel");
 	        JButton ok = new JButton ("OK");
-	        jp.add(fontCombo);
-	        fontFrame.add(jp);
-	        jp.add(ok);
-	        jp.add(cancel);
+	        ButtonGroup group = new ButtonGroup();
+	        fontspec.add(fs);
+	        fontspec.add(fontCombo);
+	        fontspec.add(ss);
+	        fontspec.add(fontsize);
+	        fontspec.add(blank);
+	        fontspec.add(blank);
+	        fontspec.add(blank);
+	        group.add(plain);
+	        group.add(bold);
+	        group.add(italic);
+	        group.add(bni);
+	        style.add(sst);
+	        style.add(plain);
+	        style.add(bold);
+	        style.add(italic);
+	        style.add(bni);
+	        buttons.add(ok);
+	        buttons.add(blank);
+	        buttons.add(cancel);
+	        fontFrame.add(style, BorderLayout.EAST);
+	        fontFrame.add(buttons, BorderLayout.SOUTH);
+	        fontFrame.add(fontspec, BorderLayout.CENTER);
+	        fontFrame.setSize(350, 160);
+	        fontFrame.setResizable(false);
 	        fontFrame.setVisible(true);
+	        fontCombo.addActionListener(new ActionListener ()
+	        {
+				public void actionPerformed(ActionEvent e)
+				{
+					int style = curFont.getStyle();
+					if (plain.isSelected())
+						style = java.awt.Font.PLAIN;
+					else if (bold.isSelected())
+						style = java.awt.Font.BOLD;
+					else if (italic.isSelected())
+						style = java.awt.Font.ITALIC;
+					else if (bni.isSelected())
+						style = java.awt.Font.BOLD | java.awt.Font.ITALIC;
+					String sizeoffont = fontsize.getText();
+					int size = curFont.getSize();
+					try
+					{
+						size = Integer.parseInt(fontsize.getText());
+					}
+					finally
+					{
+						size = 13;
+					}
+					String name = (String)fontCombo.getSelectedItem();
+					Font font_dec = java.awt.Font.decode(name);
+					Font font = new Font (font_dec.getFontName(), style, size);
+					Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();
+					for (int i=0; i<cp.length; i++)
+					{
+						RSyntaxTextAreaExt r = (RSyntaxTextAreaExt)(cp[i]);
+						r.setFont(font);
+					}
+				}
+	        
+	        });
 	        ok.addActionListener(new ActionListener ()
 	        {
 				public void actionPerformed(ActionEvent e)
 				{
+					int style = curFont.getStyle();
+					if (plain.isSelected())
+						style = java.awt.Font.PLAIN;
+					else if (bold.isSelected())
+						style = java.awt.Font.BOLD;
+					else if (italic.isSelected())
+						style = java.awt.Font.ITALIC;
+					else if (bni.isSelected())
+						style = java.awt.Font.BOLD | java.awt.Font.ITALIC;
+					String sizeoffont = fontsize.getText();
+					int size = curFont.getSize();
+					try
+					{
+						size = Integer.parseInt(fontsize.getText());
+					}
+					finally
+					{
+					}
 					String name = (String)fontCombo.getSelectedItem();
-					Font font = java.awt.Font.decode(name).deriveFont(24f);
-					editor.setFont(font);
+					Font font_dec = java.awt.Font.decode(name);
+					Font font = new Font (font_dec.getFontName(), style, size);
+					Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();
+					for (int i=0; i<cp.length; i++)
+					{
+						RSyntaxTextAreaExt r = (RSyntaxTextAreaExt)(cp[i]);
+						r.setFont(font);
+					}
+					curFont = font;
 					fontFrame.dispose();
-					
 				}
 	        
 	        });
