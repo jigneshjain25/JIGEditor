@@ -7,6 +7,8 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 public class RSyntaxTextAreaExt extends RSyntaxTextArea implements Constants{
 	
+	//Main object required for updating language menu
+	static Main obj;
 	File file=null;
 				
 	RSyntaxTextAreaExt() {
@@ -32,6 +34,15 @@ public class RSyntaxTextAreaExt extends RSyntaxTextArea implements Constants{
 			String fileExtension=result[result.length-1].toLowerCase();
 			if(EXTCODES.get(fileExtension)!=null)
 				this.setSyntaxEditingStyle(EXTCODES.get(fileExtension));
+		}
+		//updating langcheckboxes
+		String temp=this.getSyntaxEditingStyle();
+		for(int i=0;i<STYLECODES.length;i++)
+		{
+			if(STYLECODES[i].equals(temp))
+				obj.langs[i].setSelected(true);
+			else
+				obj.langs[i].setSelected(false);
 		}
 	}
 	

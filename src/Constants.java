@@ -5,8 +5,7 @@ import java.util.Map;
 
 public interface Constants {
 	
-		
-	//used by langListener to determine highlighting language
+		//used by langListener to determine highlighting language
 		String[] STYLECODES={
 				"text/plain","text/actionscript",
 				"text/asm","text/bbcode","text/c","text/clojure",

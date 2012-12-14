@@ -65,7 +65,9 @@ public class Main implements Constants{
 	java.awt.Font curFont = new Font("Courier New", Font.PLAIN, 13);
 
 	public static void main(String[] args) {
-		new Main().go();		
+		Main o=new Main();
+		RSyntaxTextAreaExt.obj=o;
+		o.go();
 	}
 
 	void go(){
