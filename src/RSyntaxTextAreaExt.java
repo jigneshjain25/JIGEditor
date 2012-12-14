@@ -10,6 +10,7 @@ public class RSyntaxTextAreaExt extends RSyntaxTextArea implements Constants{
 	//Main object required for updating language menu
 	static Main obj;
 	File file=null;
+	int syntaxCode = 0;		//Syntax code for language of editor
 				
 	RSyntaxTextAreaExt() {
 		this.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);

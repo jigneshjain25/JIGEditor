@@ -5,7 +5,8 @@ import java.util.Map;
 
 public interface Constants {
 	
-		//used by langListener to determine highlighting language
+		
+	//used by langListener to determine highlighting language
 		String[] STYLECODES={
 				"text/plain","text/actionscript",
 				"text/asm","text/bbcode","text/c","text/clojure",
@@ -21,7 +22,7 @@ public interface Constants {
 		//used for supplying strings when creating JCheckBoxMenuItem
 		 String[] CHECKMENUCODES= {
 				"NONE",	"ACTIONSCRIPT",	"ASSEMBLER_X86","BBCODE","C",
-				"CLOJURE","CPLUSPLUS","CSHARP",	"CSS","DELPHI","DTD",
+				"CLOJURE","C++","C#",	"CSS","DELPHI","DTD",
 				"FORTRAN","GROOVY",	"HTML",	"JAVA",	"JAVASCRIPT","JSP",
 				"LATEX","LISP",	"LUA",	"MAKEFILE",	"MXML",	"PERL",
 				"PHP","PROPERTIES_FILE","PYTHON","RUBY","SAS","SCALA","SQL",	
