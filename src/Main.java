@@ -60,7 +60,7 @@ public class Main {
 	JFrame frame=new JFrame("JIGEditor");
 	
 	JMenuBar myMenu=new JMenuBar();
-	java.awt.Font curFont = new Font("Courier New", Font.PLAIN, 13);
+
 	JMenu file=new JMenu("File");	
 	JMenuItem neW=new JMenuItem("New");
 	JMenuItem open=new JMenuItem("Open");
@@ -69,9 +69,9 @@ public class Main {
 	JMenuItem close=new JMenuItem("Close");
 	JMenuItem quit=new JMenuItem("Quit");
 	
-	JMenuItem undo = new JMenuItem("Undo");
-	JMenuItem redo = new JMenuItem("Redo");
 	JMenu edit=new JMenu("Edit");
+	JMenuItem undo = new JMenuItem("Undo");
+	JMenuItem redo = new JMenuItem("Redo");	
 	JMenuItem Copy=new JMenuItem("Copy");
 	JMenuItem cut=new JMenuItem("Cut");
 	JMenuItem paste=new JMenuItem("Paste");
@@ -84,6 +84,8 @@ public class Main {
 
 	JFileChooser fileSave=new JFileChooser();
 	JFileChooser fileOpen=new JFileChooser();
+	
+	java.awt.Font curFont = new Font("Courier New", Font.PLAIN, 13);
 
 	public static void main(String[] args) {
 		new Main().go();		
@@ -152,11 +154,13 @@ public class Main {
 		myMenu.add(lang);
 		
 		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
-		editor.setFont(curFont);
+		editor.setFont(new Font("Courier New", Font.PLAIN, 13));
 		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		//frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.add(jTabbedPane);
+		ButtonTabComponent btc = new ButtonTabComponent(jTabbedPane);
 		jTabbedPane.add("Untitled"+(jTabbedPane.getTabCount()+1),scroller);
+		jTabbedPane.setTabComponentAt(jTabbedPane.getTabCount()-1, btc);
 		editor.requestFocusInWindow();
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -194,10 +198,12 @@ public class Main {
 		public void actionPerformed(ActionEvent e) {
 			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
-			editorCur.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_JAVA);			
-			editorCur.setFont(curFont);
+			editorCur.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);			
+			editorCur.setFont(new Font("Courier New", Font.PLAIN, 13));
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			ButtonTabComponent btc = new ButtonTabComponent(jTabbedPane);
 			jTabbedPane.add("Untitled"+(jTabbedPane.getTabCount()+1),scrollerCur); 
+			jTabbedPane.setTabComponentAt(jTabbedPane.getTabCount()-1, btc);
         	jTabbedPane.setSelectedIndex(jTabbedPane.getTabCount()-1);			
 		}
 	}
@@ -242,7 +248,7 @@ public class Main {
 			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
 			editorCur.filePath = file.getAbsolutePath();	//Saves file path for saving without dialog box
-			editorCur.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_JAVA);
+			editorCur.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);
 			editorCur.setFont(new Font("Courier New", Font.PLAIN, 13));
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			jTabbedPane.add(file.getName(),scrollerCur); 
@@ -257,6 +263,7 @@ public class Main {
 		}catch(Exception ex){
 			System.out.println("ERROR OPENING THE FILE");
 		}
+		editorCur.requestFocusInWindow();
 	}	
 	void saveFile(File file){
 		try{
@@ -310,7 +317,7 @@ public class Main {
 
 		public void actionPerformed(ActionEvent e)
 		{
-	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();  
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();  
 	        String[] fontNames = ge.getAvailableFontFamilyNames();
 	        fontCombo = new JComboBox(fontNames);
 	        final JFrame fontFrame = new JFrame("Font Selection");
@@ -445,7 +452,6 @@ public class Main {
 				}
 	        	
 	        });
-
 		}
 	}
 	class undoListener implements ActionListener{
