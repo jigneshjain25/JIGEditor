@@ -346,47 +346,40 @@ public class Main implements Constants{
 	        fontFrame.setVisible(true);
 	        preview.addActionListener(new ActionListener()
 	        {
-	        		boolean firstTime = true;
-					public void actionPerformed(ActionEvent e)
+				public void actionPerformed(ActionEvent e)
+				{
+					int style = curFont.getStyle();
+					if (plain.isSelected())
+					style = java.awt.Font.PLAIN;
+					else if (bold.isSelected())
+						style = java.awt.Font.BOLD;
+					else if (italic.isSelected())
+						style = java.awt.Font.ITALIC;
+					else if (bni.isSelected())
+						style = java.awt.Font.BOLD | java.awt.Font.ITALIC;
+					String sizeoffont = (String)fontSize.getSelectedItem();
+					int size = curFont.getSize();
+					try
 					{
-						
-						//fontFrame.repaint();
-						int style = curFont.getStyle();
-						if (plain.isSelected())
-							style = java.awt.Font.PLAIN;
-						else if (bold.isSelected())
-							style = java.awt.Font.BOLD;
-						else if (italic.isSelected())
-							style = java.awt.Font.ITALIC;
-						else if (bni.isSelected())
-							style = java.awt.Font.BOLD | java.awt.Font.ITALIC;
-						String sizeoffont = (String)fontSize.getSelectedItem();
-						int size = curFont.getSize();
-						try
-						{
-							size = Integer.parseInt(sizeoffont);
-						}
-						catch (Exception e1)
-						{
-							size = curFont.getSize();
-						}
-						Font font_dec = null;
-						try 
-						{
-							String name = (String)fontCombo.getSelectedItem();
-							font_dec= java.awt.Font.decode(name);
-						}
-						finally {}
-						Font font = new Font (font_dec.getFontName(), style, size);
-						sample.setFont(font);
-						//fontFrame.repaint();
-						if (sample.getWidth() > fontFrame.getWidth())
-							fontFrame.setSize(sample.getWidth(), fontFrame.getHeight());
-						int height = sample.getHeight() + buttons.getHeight() +  (fontspec.getHeight() > style1.getHeight() ? fontspec.getHeight() : style1.getHeight());
-						fontFrame.setSize(fontFrame.getWidth(), height);
+						size = Integer.parseInt(sizeoffont);
 					}
-	        	
-	        });
+					catch (Exception e1)
+					{
+						size = curFont.getSize();
+					}
+					Font font_dec = null;
+					try 
+					{
+						String name = (String)fontCombo.getSelectedItem();
+						font_dec= java.awt.Font.decode(name);
+					}
+					finally {}
+					Font font = new Font (font_dec.getFontName(), style, size);
+					sample.setFont(font);
+					if (sample.getWidth() > fontFrame.getWidth())
+						fontFrame.setSize(sample.getWidth(), fontFrame.getHeight());
+					}
+	        	});
 	        ok.addActionListener(new ActionListener ()
 	        {
 				public void actionPerformed(ActionEvent e)
@@ -413,16 +406,20 @@ public class Main implements Constants{
 					String name = (String)fontCombo.getSelectedItem();
 					Font font_dec = java.awt.Font.decode(name);
 					Font font = new Font (font_dec.getFontName(), style, size);
-					Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();
+					Component[] cp = jTabbedPane.getComponents();
 					for (int i=0; i<cp.length; i++)
 					{
-						RSyntaxTextAreaExt r = (RSyntaxTextAreaExt)(cp[i]);
-						r.setFont(font);
+							if (i != 1)
+							{
+								RTextScrollPane rt = (RTextScrollPane)(cp[i]);
+								JViewport jv = (JViewport)(rt.getComponent(0));
+								RSyntaxTextAreaExt rs = (RSyntaxTextAreaExt)(jv.getComponent(0));
+								rs.setFont(font);
+							}
 					}
 					fontFrame.pack();
 					curFont = font;
 					fontFrame.dispose();
-					
 				}
 	        
 	        });
@@ -436,7 +433,6 @@ public class Main implements Constants{
 	        	
 	        });
 		}
-		
 	}
 	class undoListener implements ActionListener{
 		public void actionPerformed(ActionEvent arg0) {
