@@ -1,5 +1,6 @@
 import java.awt.Font;
 import java.awt.Component;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -11,17 +12,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
 import javax.swing.*;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
+
+import sun.org.mozilla.javascript.JavaAdapter;
 
 public class Main {
 //testing github -- code sharing	
@@ -57,40 +53,61 @@ public class Main {
 	JFrame frame=new JFrame("JIGEditor");
 	JMenuBar myMenu=new JMenuBar();
 
-	JMenu file=new JMenu("File");
-	JMenuItem neW=new JMenuItem("New");
+	/*
+	 * The initialisation of JMenu "file" and its subitems.
+	 */
+	JMenu file=new JMenu("File"); 
+	JMenuItem neW=new JMenuItem("New"); 
 	JMenuItem open=new JMenuItem("Open");
 	JMenuItem save=new JMenuItem("Save");
 	JMenuItem saveAs=new JMenuItem("Save As");
 	JMenuItem close=new JMenuItem("Close");
 	JMenuItem quit=new JMenuItem("Quit");
-
+	/*
+	 * The initialisation of JMenu "language" and its subitems.
+	 */
 	JMenu lang=new JMenu("Language");
 	JCheckBoxMenuItem[] langs=new JCheckBoxMenuItem[34];
 
 	JFileChooser fileSave=new JFileChooser();
 	JFileChooser fileOpen=new JFileChooser();
-
+	
+	/*
+	 * Initializing Edit toolbar
+	 */
+	JMenu Edit = new JMenu ("Edit");
+	JMenuItem FontMenu = new JMenuItem ("Font");
+	JComboBox fontCombo;
+	
 	public static void main(String[] args) {
 		new Main().go();
 	}
 
 	void go(){
-
+		
+		/*
+		 * Sets the key shortcuts
+		 */
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK));   // Ctrl + s 
 		saveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));   // Ctrl + Shift + s
 		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,ActionEvent.ALT_MASK));   // Alt + F4
 		neW.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,ActionEvent.CTRL_MASK));    // Ctrl + n
 		close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));  // Ctrl + w
 		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,ActionEvent.CTRL_MASK));   // Ctrl + o
-
+		
+		/*
+		 *  Specifies the respective actionListener classes
+		 */
 		neW.addActionListener(new neWListener());
 		open.addActionListener(new openListener());
 		save.addActionListener(new saveListener());
 		saveAs.addActionListener(new saveAsListener());
 		close.addActionListener(new closeListener());
 		quit.addActionListener(new quitListener());
-
+		FontMenu.addActionListener(new FontListener());
+		/*
+		 * Adding subitems and ~
+		 */
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
 		file.add(open);
@@ -100,22 +117,27 @@ public class Main {
 		file.add(close);
 		file.addSeparator();
 		file.add(quit);		
-
+		/*
+		 * 34 languages
+		 */
 		for(int i=0;i<34;i++)
 			langs[i]=new JCheckBoxMenuItem(CHECKMENUCODES[i]);
 
 		langs[0].setSelected(true);
 
 		lang.setMnemonic('l');		// open up language menu when user presses Alt + l
-
+		
 		for(int i=0;i<34;i++)
 		{
 			langs[i].addActionListener(new langListener(i));
 			lang.add(langs[i]);		// lang is the Language menu
 		}
-
+		//adding JMenu to menu bar
+		Edit.setMnemonic('e');
+		Edit.add(FontMenu);
 		myMenu.add(file);
 		myMenu.add(lang);
+		myMenu.add(Edit);
 		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
 		editor.setFont(new Font("Courier New", Font.PLAIN, 13));
 		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -128,6 +150,7 @@ public class Main {
 		frame.setSize(1100,900);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);		
+		editor.requestFocusInWindow();
 	}
 
 	class langListener implements ActionListener{
@@ -244,6 +267,53 @@ public class Main {
 		public void windowClosing(WindowEvent e) {
 			// Will need this method to check if user has saved file before quitting
 		}
+	}
+	class FontListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			// TODO Auto-generated method stub
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();  
+	        String[] fontNames = ge.getAvailableFontFamilyNames();
+	        //System.out.println(fontNames.length);
+	        fontCombo = new JComboBox(fontNames);
+	        final JFrame fontFrame = new JFrame("Font Selection");
+	        fontFrame.setAlwaysOnTop(true);
+	        fontFrame.setLocation(300, 300);
+	        fontFrame.setSize(450, 20);
+	        JPanel jp = new JPanel();
+	        final java.awt.Font curFont = editor.getFont();
+	        JButton cancel = new JButton("Cancel");
+	        JButton ok = new JButton ("OK");
+	        jp.add(fontCombo);
+	        fontFrame.add(jp);
+	        jp.add(ok);
+	        jp.add(cancel);
+	        fontFrame.setVisible(true);
+	        ok.addActionListener(new ActionListener ()
+	        {
+				public void actionPerformed(ActionEvent e)
+				{
+					String name = (String)fontCombo.getSelectedItem();
+					Font font = java.awt.Font.decode(name).deriveFont(24f);
+					editor.setFont(font);
+					fontFrame.dispose();
+					
+				}
+	        
+	        });
+	        cancel.addActionListener(new ActionListener ()
+	        {
+				public void actionPerformed(ActionEvent e)
+				{
+					editor.setFont(curFont);
+					fontFrame.dispose();
+				}
+	        	
+	        });
+		}
+		
 	}
 
 }
