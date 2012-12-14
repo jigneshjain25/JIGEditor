@@ -1391,7 +1391,7 @@ private boolean fractionalFontMetricsEnabled;
 	 *
 	 * @return The RTF generator.
 	 */
-	protected RtfGenerator getRTFGenerator() {
+	private RtfGenerator getRTFGenerator() {
 		if (rtfGenerator==null) {
 			rtfGenerator = new RtfGenerator();
 		}
@@ -1531,7 +1531,7 @@ private boolean fractionalFontMetricsEnabled;
 	 * @param endOffs The end offset in the document.
 	 * @return The first token in the token list.
 	 */
-	protected Token getTokenListFor(int startOffs, int endOffs) {
+	private Token getTokenListFor(int startOffs, int endOffs) {
 
 		Token tokenList = null;
 		Token lastToken = null;

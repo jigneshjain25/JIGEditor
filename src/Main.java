@@ -22,6 +22,7 @@ import javax.swing.*;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.GoToMatchingBracketAction;
+import org.fife.ui.rtextarea.RTextAreaEditorKit;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rtextarea.RecordableTextAction;
 
@@ -68,11 +69,13 @@ public class Main {
 	JMenuItem close=new JMenuItem("Close");
 	JMenuItem quit=new JMenuItem("Quit");
 	
+	JMenuItem undo = new JMenuItem("Undo");
+	JMenuItem redo = new JMenuItem("Redo");
 	JMenu edit=new JMenu("Edit");
 	JMenuItem Copy=new JMenuItem("Copy");
 	JMenuItem cut=new JMenuItem("Cut");
 	JMenuItem paste=new JMenuItem("Paste");
-	JMenuItem FontMenu = new JMenuItem ("Font");
+	JMenuItem FontMenu = new JMenuItem ("Font");	
 
 	JMenu lang=new JMenu("Language");
 	JCheckBoxMenuItem[] langs=new JCheckBoxMenuItem[34];
@@ -97,6 +100,8 @@ public class Main {
 		Copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK));	//Ctrl + c
 		cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,ActionEvent.CTRL_MASK));	//Ctrl + x
 		paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK));	//Ctrl + v
+		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,ActionEvent.CTRL_MASK));	//Ctrl + z
+		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,ActionEvent.CTRL_MASK));	//Ctrl + y
 
 		neW.addActionListener(new neWListener());
 		open.addActionListener(new openListener());
@@ -108,6 +113,8 @@ public class Main {
 		cut.addActionListener(new cutListener());
 		paste.addActionListener(new pasteListener());
 		FontMenu.addActionListener(new FontListener());
+		undo.addActionListener(new undoListener());
+		redo.addActionListener(new redoListener());
 
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
@@ -120,6 +127,9 @@ public class Main {
 		file.add(quit);		
 		
 		edit.setMnemonic('e');		// open up edit menu when user presses Alt + e
+		edit.add(undo);
+		edit.add(redo);
+		edit.addSeparator();
 		edit.add(Copy);
 		edit.add(cut);
 		edit.add(paste);
@@ -286,30 +296,14 @@ public class Main {
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
         	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
         	editorCur.copyAsRtf();
-			editorCur.replaceSelection("");			
+			editorCur.replaceSelection("");	
 		}
 	}
 	class pasteListener implements ActionListener{
 		public void actionPerformed(ActionEvent e){
 			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
         	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
-        	RSyntaxTextAreaEditorKit rstaek = new RSyntaxTextAreaEditorKit();
-        	Transferable clipData = editorCur.cb.getContents(editorCur.cb);
-            if (clipData != null) {
-              try {
-                if 
-                  (clipData.isDataFlavorSupported
-				    (DataFlavor.stringFlavor)) {
-                      String s = (String)(clipData.getTransferData(
-                        DataFlavor.stringFlavor));
-                  editorCur.replaceSelection(s);
-                }
-              } catch (UnsupportedFlavorException ufe) {
-                System.err.println("Flavor unsupported: " + ufe);
-              } catch (IOException ioe) {
-                System.err.println("Data not available: " + ioe);
-              }
-		}
+        	editorCur.paste();
 	}
 }
 	class FontListener implements ActionListener {
@@ -448,5 +442,21 @@ public class Main {
 	        });
 
 		}
+	}
+	class undoListener implements ActionListener{
+		public void actionPerformed(ActionEvent arg0) {
+			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
+        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]);
+        	editorCur.undoLastAction();
+		}
+		
+	}
+	class redoListener implements ActionListener{
+		public void actionPerformed(ActionEvent arg0) {
+			Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
+        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]);  
+        	editorCur.redoLastAction();
+		}
+		
 	}
 }
