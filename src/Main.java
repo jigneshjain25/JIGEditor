@@ -81,6 +81,10 @@ public class Main implements Constants{
 
 	void go(){
 
+		for (int i=0; i<fontSizes.length; i++)
+		{
+			fontSizes[i] = Integer.toString(i+1);
+		}
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK));   // Ctrl + s 
 		saveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));   // Ctrl + Shift + s
 		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,ActionEvent.ALT_MASK));   // Alt + F4
