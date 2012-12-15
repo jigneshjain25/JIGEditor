@@ -14,6 +14,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
@@ -74,7 +76,10 @@ public class Main implements Constants{
 
 	JMenu lang=new JMenu("Language");
 	JCheckBoxMenuItem[] langs=new JCheckBoxMenuItem[34];
-
+	JMenuItem[] langItems = new JMenuItem[34];
+	JMenu pref = new JMenu ("Preferences");
+	JMenu defCode = new JMenu ("Default Code");
+	
 	JComboBox fontCombo;
 	
 	JMenu search = new JMenu("Search");
@@ -166,22 +171,32 @@ public class Main implements Constants{
 		search.add(replace);
 		search.add(replaceAll);
 
+		
+		
 		lang.setMnemonic('l');		// open up language menu when user presses Alt + l
 		for(int i=0;i<34;i++)
+		{
 			langs[i]=new JCheckBoxMenuItem(CHECKMENUCODES[i]);
+			langItems[i] = new JMenuItem(CHECKMENUCODES[i]);
+		}
+		
 		langs[0].setSelected(true);		
 
 		for(int i=0;i<34;i++)
 		{
 			langs[i].addActionListener(new langListener(i));
-			lang.add(langs[i]);		// lang is the Language menu
+			lang.add(langs[i]);// lang is the Language menu
+			langItems[i].addActionListener(new defaultCodeListener(i));
+			defCode.add(langItems[i]);
 		}
-
+		
+		pref.add(defCode);
+		
 		myMenu.add(file);
 		myMenu.add(edit);
 		myMenu.add(lang);
 		myMenu.add(search);
-
+		myMenu.add(pref);
 		setupTabTraversalKeys(jTabbedPane);
 
 		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
@@ -203,6 +218,88 @@ public class Main implements Constants{
 		editor.requestFocusInWindow();
 	}
 
+	class defaultCodeListener implements ActionListener
+	{
+		int codeNo;
+		public defaultCodeListener(int c)
+		{
+			codeNo =c;
+		}
+		public void actionPerformed(ActionEvent e)
+		{
+			final JFrame defC = new JFrame("Default code for"+CHECKMENUCODES[codeNo]);
+			defC.setSize(400, 200);
+			final RSyntaxTextAreaExt defaultCode = new RSyntaxTextAreaExt();
+			defaultCode.setSyntaxEditingStyle(STYLECODES[codeNo]);
+			defaultCode.setRows(20);
+			defaultCode.setColumns(40);
+			RTextScrollPane scrollerCur = new RTextScrollPane(defaultCode);
+			scrollerCur.setHorizontalScrollBarPolicy(RTextScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			scrollerCur.setVerticalScrollBarPolicy(RTextScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			JPanel textP = new JPanel();
+			JPanel buttonPanel = new JPanel();
+			buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+			JButton ok = new JButton("OK");
+			JButton cancel = new JButton("Cancel");
+			textP.add(defaultCode, scrollerCur);
+			File file = new File("Source/"+CHECKMENUCODES[codeNo]+".txt");
+			if (file.exists())
+			{
+				try{	
+					FileReader fileReader=new FileReader(file);
+					BufferedReader reader=new BufferedReader(fileReader);
+					String line=null;
+					while((line=reader.readLine())!=null)
+						defaultCode.append(line+"\n");
+					
+				}catch(Exception ex){
+				System.out.println("ERROR OPENING THE FILE");
+				}
+			}
+			else
+			{
+				try
+				{
+					BufferedWriter writer=new BufferedWriter(new FileWriter(file));
+					defaultCode.setRows(10);
+				}
+				catch (IOException e1)
+				{
+					System.out.println("hi lol");
+				}
+			}
+			
+			ok.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e)
+				{
+					File file = new File("Source/"+CHECKMENUCODES[codeNo]+".txt");
+					try
+					{
+						BufferedWriter writer=new BufferedWriter(new FileWriter(file));
+						writer.write(defaultCode.getText());
+						writer.close();	
+					} catch (IOException e1)
+					{
+						e1.printStackTrace();
+					}
+					defC.dispose();
+				}
+			});
+			cancel.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					defC.dispose();
+				}
+			});
+			buttonPanel.add(ok);
+			buttonPanel.add(cancel);
+			defC.add(textP, BorderLayout.CENTER);
+			defC.add(buttonPanel, BorderLayout.EAST);
+			defC.setVisible(true);
+		}
+		
+	}
 	class langListener implements ActionListener{
 
 		int codeNo;
@@ -227,7 +324,42 @@ public class Main implements Constants{
 
 	class neWListener implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
-			RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
+			final RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
+			final JFrame langFrame = new JFrame ("Select Language");
+			final JComboBox langSelect = new JComboBox(CHECKMENUCODES);
+			JPanel buttons = new JPanel();
+			buttons.setLayout(new BorderLayout());
+			JButton ok = new JButton("OK");
+			buttons.add(ok, BorderLayout.CENTER);
+			langFrame.add(langSelect);
+			langFrame.add(buttons, BorderLayout.SOUTH);
+			langFrame.setVisible(true);
+			langFrame.setSize(150, 80);
+			langFrame.setLocation(300, 300);
+			ok.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					editorCur.setSyntaxEditingStyle(STYLECODES[langSelect.getSelectedIndex()]);
+					File file = new File("Source/"+CHECKMENUCODES[langSelect.getSelectedIndex()]+".txt");
+					if (file.exists())
+					{
+						try{	
+							FileReader fileReader=new FileReader(file);
+							BufferedReader reader=new BufferedReader(fileReader);
+							String line=null;
+							while((line=reader.readLine())!=null)
+								editorCur.append(line+"\n");
+							
+						}catch(Exception ex){
+						System.out.println("ERROR OPENING THE FILE");
+						}
+					}
+					langFrame.dispose();
+				}
+			});
+			
+			
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			ButtonTabComponent btc = new ButtonTabComponent(jTabbedPane);
@@ -391,11 +523,11 @@ public class Main implements Constants{
     		        		if(val==JFileChooser.APPROVE_OPTION && fileSave.getSelectedFile()!=null)
     		        			editor.file=fileSave.getSelectedFile();
     					}
-    				    try{		        		
-    				      		
-    					BufferedWriter writer=new BufferedWriter(new FileWriter(editor.file));
-    					writer.write(editor.getText());
-    					writer.close();
+    				    try
+    				    {
+	    					BufferedWriter writer=new BufferedWriter(new FileWriter(editor.file));
+	    					writer.write(editor.getText());
+	    					writer.close();
     					}catch(Exception e1){e1.printStackTrace();
     					
     					}
