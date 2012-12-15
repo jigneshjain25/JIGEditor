@@ -4,8 +4,8 @@ import java.util.Map;
 
 
 public interface Constants {
-	
-		
+
+
 	//used by langListener to determine highlighting language
 		String[] STYLECODES={
 				"text/plain","text/actionscript",
@@ -28,15 +28,15 @@ public interface Constants {
 				"PHP","PROPERTIES_FILE","PYTHON","RUBY","SAS","SCALA","SQL",	
 				"TCL",	"UNIX_SHELL","WINDOWS_BATCH","XML"
 		};
-		 
+
 		 //there are only 33 extensions, nothing for plain
 		 String[] EXTENSIONS={
 				 "as","asm","bb","c","clj","cpp","cs","css","pas","dtd","f","groovy","html","java","js","jsp",
 				 "latex","lisp","lua","makefile","mxml","perl","php","properties","python","ruby","sas","scala",
 				 "sql","tcl","sh","bat","xml"
 		 };
-		 
-		 
+
+
 		 @SuppressWarnings("serial")
 		Map<String, String> EXTCODES = 
 		            Collections.unmodifiableMap(
@@ -48,5 +48,5 @@ public interface Constants {
 
 		                    });
 
-		
+
 }

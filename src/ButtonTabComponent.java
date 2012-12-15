@@ -1,9 +1,29 @@
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 
-import javax.swing.*;
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JViewport;
 import javax.swing.plaf.basic.BasicButtonUI;
-import java.awt.*;
-import java.awt.event.*;
  
 /**
  * Component to be used as tabComponent;
@@ -67,7 +87,36 @@ public class ButtonTabComponent extends JPanel {
         public void actionPerformed(ActionEvent e) {
             int i = pane.indexOfTabComponent(ButtonTabComponent.this);
             if (i != -1) {
-                pane.remove(i);
+    			Component[] cp = ((JViewport)((JScrollPane)((pane.getComponentAt(i)))).getComponent(0)).getComponents();            
+    			RSyntaxTextAreaExt editor= (RSyntaxTextAreaExt) cp[0];
+    			if(editor.changed)
+    			{
+    				int n=JOptionPane.showConfirmDialog(null, "Save Changes to "+pane.getTitleAt(i)+" before closing ?","JIGEditor",JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+    				if(n==JOptionPane.YES_OPTION){
+    					if(editor.file==null){
+    						
+    						JFileChooser fileSave=new JFileChooser();
+    		        		int val = fileSave.showSaveDialog(pane);
+    		        		if(val==JFileChooser.APPROVE_OPTION && fileSave.getSelectedFile()!=null)
+    		        			editor.file=fileSave.getSelectedFile();
+    					}
+    				    try{		        		
+    				      		
+    					BufferedWriter writer=new BufferedWriter(new FileWriter(editor.file));
+    					writer.write(editor.getText());
+    					writer.close();
+    					}catch(Exception e1){e1.printStackTrace();}
+    				    
+    					pane.remove(i);
+    				}
+    				
+    				else if(n==JOptionPane.NO_OPTION)
+    					pane.remove(i);
+    				
+    			}
+    			else
+    				pane.remove(i);
+                
             }
         }
  
