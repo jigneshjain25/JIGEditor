@@ -25,7 +25,6 @@ class langListener implements ActionListener,Constants{
 			frame.langs[codeNo].setSelected(true);			
 			Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
         	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]);
-        	editorCur.syntaxCode = codeNo;
         	editorCur.setSyntaxEditingStyle(STYLECODES[codeNo]);
 		}
 	}

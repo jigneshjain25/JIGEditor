@@ -24,19 +24,18 @@ public class saveListener implements ActionListener, Constants {
     	if(editorCur.file==null){
     		int val = frame.fileSave.showSaveDialog(frame.frame);
     		if(val==JFileChooser.APPROVE_OPTION && frame.fileSave.getSelectedFile()!=null)				
-    			saveFile(frame.fileSave.getSelectedFile());
+    			saveFile(editorCur,frame.fileSave.getSelectedFile());
     	}
-		else        			        		
-			saveFile(editorCur.file);        				        		
+		else if(editorCur.changed)        			        		
+			saveFile(editorCur,editorCur.file);     				        		
     	
 	}
 
-	void saveFile(File file){
+	void saveFile(RSyntaxTextAreaExt editorCur,File file){
 		try{
 			frame.jTabbedPane.setTitleAt(frame.jTabbedPane.getSelectedIndex(), file.getName());
-			Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
-        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
-        	editorCur.file = file;				//Saves file path for saving without dialog box
+			//Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
+        //	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
         	editorCur.update(file);
 			BufferedWriter writer=new BufferedWriter(new FileWriter(file));
 			writer.write(editorCur.getText());
@@ -44,7 +43,8 @@ public class saveListener implements ActionListener, Constants {
 			editorCur.changed=false;
 			
 		}catch(Exception ex){
-			System.out.println("ERROR WRITING THE FILE");
+			System.out.println("Error saving the file");
+			ex.printStackTrace();
 		}
 	}
 }
@@ -68,7 +68,6 @@ class saveAsListener implements ActionListener{
 			frame.jTabbedPane.setTitleAt(frame.jTabbedPane.getSelectedIndex(), file.getName());
 			Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
         	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
-        	editorCur.file = file;				//Saves file path for saving without dialog box
         	editorCur.update(file);
 			BufferedWriter writer=new BufferedWriter(new FileWriter(file));
 			writer.write(editorCur.getText());
@@ -76,7 +75,8 @@ class saveAsListener implements ActionListener{
 			editorCur.changed=false;
 			
 		}catch(Exception ex){
-			System.out.println("ERROR WRITING THE FILE");
+			System.out.println("Error saving the file");
+			ex.printStackTrace();
 		}
 	}
 }

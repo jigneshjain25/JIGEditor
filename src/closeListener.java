@@ -27,15 +27,16 @@ public class closeListener implements ActionListener, Constants {
 		if(editorCur.changed)
 		{
 			int n=JOptionPane.showConfirmDialog(null, "Save Changes to "+frame.jTabbedPane.getTitleAt(frame.jTabbedPane.getSelectedIndex())+" before closing ?","JIGEditor",JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-			if(n==JOptionPane.YES_OPTION){
+			if(n==JOptionPane.YES_OPTION)
+			{
 				
 				if(editorCur.file==null){
 	        		int val = frame.fileSave.showSaveDialog(frame.frame);
 	        		if(val==JFileChooser.APPROVE_OPTION && frame.fileSave.getSelectedFile()!=null)				
-	        			saveFile(frame.fileSave.getSelectedFile());
+	        			saveFile(editorCur,frame.fileSave.getSelectedFile());
 	        	}
 				else       			        		
-					saveFile(frame.editor.file);  
+					saveFile(editorCur,frame.editor.file);  
 				
 				frame.jTabbedPane.remove(frame.jTabbedPane.getSelectedIndex());
 			}
@@ -48,12 +49,11 @@ public class closeListener implements ActionListener, Constants {
 		
 	}
 	
-	void saveFile(File file){
+	void saveFile(RSyntaxTextAreaExt editorCur,File file){
 		try{
 			frame.jTabbedPane.setTitleAt(frame.jTabbedPane.getSelectedIndex(), file.getName());
-			Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
-        	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
-        	editorCur.file = file;				//Saves file path for saving without dialog box
+			//Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
+        	//RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
         	editorCur.update(file);
 			BufferedWriter writer=new BufferedWriter(new FileWriter(file));
 			writer.write(editorCur.getText());
@@ -62,6 +62,7 @@ public class closeListener implements ActionListener, Constants {
 			
 		}catch(Exception ex){
 			System.out.println("ERROR WRITING THE FILE");
+			ex.printStackTrace();
 		}
 	}
 }

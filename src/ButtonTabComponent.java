@@ -86,24 +86,27 @@ public class ButtonTabComponent extends JPanel {
  
         public void actionPerformed(ActionEvent e) {
             int i = pane.indexOfTabComponent(ButtonTabComponent.this);
-            if (i != -1) {
+            
+            if (i != -1) 
+            {
     			Component[] cp = ((JViewport)((JScrollPane)((pane.getComponentAt(i)))).getComponent(0)).getComponents();            
-    			RSyntaxTextAreaExt editor= (RSyntaxTextAreaExt) cp[0];
-    			if(editor.changed)
+    			RSyntaxTextAreaExt editorCur= (RSyntaxTextAreaExt) cp[0];
+    			if(editorCur.changed)
     			{
     				int n=JOptionPane.showConfirmDialog(null, "Save Changes to "+pane.getTitleAt(i)+" before closing ?","JIGEditor",JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-    				if(n==JOptionPane.YES_OPTION){
-    					if(editor.file==null){
+    				if(n==JOptionPane.YES_OPTION)
+    				{
+    					if(editorCur.file==null){
     						
     						JFileChooser fileSave=new JFileChooser();
     		        		int val = fileSave.showSaveDialog(pane);
     		        		if(val==JFileChooser.APPROVE_OPTION && fileSave.getSelectedFile()!=null)
-    		        			editor.file=fileSave.getSelectedFile();
+    		        			editorCur.file=fileSave.getSelectedFile();
     					}
     				    try{		        		
     				      		
-    					BufferedWriter writer=new BufferedWriter(new FileWriter(editor.file));
-    					writer.write(editor.getText());
+    					BufferedWriter writer=new BufferedWriter(new FileWriter(editorCur.file));
+    					writer.write(editorCur.getText());
     					writer.close();
     					}catch(Exception e1){e1.printStackTrace();}
     				    

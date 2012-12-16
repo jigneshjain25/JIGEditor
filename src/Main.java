@@ -66,7 +66,7 @@ public class Main implements Constants{
 
 	JFileChooser fileSave=new JFileChooser();
 	JFileChooser fileOpen=new JFileChooser();
-			
+	
 	static java.awt.Font curFont = new Font("Courier New", Font.PLAIN, 13);
 
 	public static void main(String[] args) {
@@ -148,8 +148,8 @@ public class Main implements Constants{
 		lang.setMnemonic('l');		// open up language menu when user presses Alt + l
 		for(int i=0;i<34;i++)
 		{
-			langs[i]=new JCheckBoxMenuItem(CHECKMENUCODES[i]);
-			langItems[i] = new JMenuItem(CHECKMENUCODES[i]);
+			langs[i]=new JCheckBoxMenuItem(CHECKMENUCODES[i]);	//lang check boxes
+			langItems[i] = new JMenuItem(CHECKMENUCODES[i]);	//default code menu items
 		}
 		
 		langs[0].setSelected(true);		
@@ -170,10 +170,7 @@ public class Main implements Constants{
 		myMenu.add(search);
 		myMenu.add(pref);
 		setupTabTraversalKeys(jTabbedPane);
-
-		editor.setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);		
-		editor.setFont(new Font("Courier New", Font.PLAIN, 13));
-
+		jTabbedPane.addFocusListener(new tabFocusListener(this));
 		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		//frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.add(jTabbedPane);
@@ -181,7 +178,7 @@ public class Main implements Constants{
 		jTabbedPane.add("Untitled"+(tabCnt++),scroller);
 		jTabbedPane.setTabComponentAt(jTabbedPane.getTabCount()-1, btc);		
 
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setJMenuBar(myMenu);
 		frame.addWindowListener(new myWindowListener(this));
 		frame.setSize(900,800);

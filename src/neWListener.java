@@ -39,6 +39,7 @@ public class neWListener implements ActionListener,Constants{
 				public void actionPerformed(ActionEvent e)
 				{
 					editorCur.setSyntaxEditingStyle(STYLECODES[langSelect.getSelectedIndex()]);
+					editorCur.StyleCodeNo=langSelect.getSelectedIndex();
 					File file = new File("Source/"+CHECKMENUCODES[langSelect.getSelectedIndex()]+".txt");
 					if (file.exists())
 					{

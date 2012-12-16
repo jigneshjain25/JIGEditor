@@ -41,10 +41,11 @@ public class openListener implements ActionListener, Constants {
 					editorCur.append(line+"\n");
 				
 			}catch(Exception ex){
-			System.out.println("ERROR OPENING THE FILE");
+				System.out.println("ERROR OPENING THE FILE");
+				ex.printStackTrace();
 			}
 		
 		editorCur.requestFocusInWindow();
 		editorCur.changed=false;
-}	
+	}	
 }
