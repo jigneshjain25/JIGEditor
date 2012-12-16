@@ -56,8 +56,12 @@ public class Main implements Constants{
 	JMenu lang=new JMenu("Language");
 	JCheckBoxMenuItem[] langs=new JCheckBoxMenuItem[34];
 	JMenuItem[] langItems = new JMenuItem[34];
+	
 	JMenu pref = new JMenu ("Preferences");
-	JMenu defCode = new JMenu ("Default Code");	
+	JMenu defCode = new JMenu ("Default Code");
+	JCheckBoxMenuItem wordWrap = new JCheckBoxMenuItem("Word Wrap",true);
+	JCheckBoxMenuItem codeFold = new JCheckBoxMenuItem("Code Folding",false);
+	JCheckBoxMenuItem lineNumber = new JCheckBoxMenuItem("Line Number",true);
 	
 	JMenu search = new JMenu("Search");
 	JMenuItem find = new JMenuItem("Find");
@@ -105,6 +109,9 @@ public class Main implements Constants{
 		paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK));	//Ctrl + v
 		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,ActionEvent.CTRL_MASK));	//Ctrl + z
 		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,ActionEvent.CTRL_MASK));	//Ctrl + y
+		wordWrap.addActionListener(new prefListener(this));
+		codeFold.addActionListener(new prefListener(this));
+		lineNumber.addActionListener(new prefListener(this));
 
 		neW.addActionListener(new neWListener(this));
 		open.addActionListener(new openListener(this));
@@ -163,16 +170,20 @@ public class Main implements Constants{
 		}
 		
 		pref.add(defCode);
+		pref.add(codeFold);
+		pref.add(lineNumber);
+		pref.add(wordWrap);
 		
 		myMenu.add(file);
 		myMenu.add(edit);
 		myMenu.add(lang);
 		myMenu.add(search);
 		myMenu.add(pref);
-		setupTabTraversalKeys(jTabbedPane);
+		
+		setupTabTraversalKeys(jTabbedPane);		
 		jTabbedPane.addFocusListener(new tabFocusListener(this));
+		
 		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		//frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.add(jTabbedPane);
 		ButtonTabComponent btc = new ButtonTabComponent(jTabbedPane);
 		jTabbedPane.add("Untitled"+(tabCnt++),scroller);

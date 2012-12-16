@@ -23,7 +23,8 @@ public class tabFocusListener implements FocusListener {
     	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
     	for(int i=0;i<frame.langs.length;i++)
     		frame.langs[i].setSelected(false);
-    	frame.langs[editorCur.StyleCodeNo].setSelected(true);
+    		frame.langs[editorCur.StyleCodeNo].setSelected(true);
+    		frame.lang.repaint();
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
