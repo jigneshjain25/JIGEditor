@@ -14,14 +14,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 
-import org.fife.ui.rtextarea.RTextScrollPane;
-
-public class FontDialog extends JDialog implements ActionListener{
-	
-	java.awt.Font curFont = new Font("Courier New", Font.PLAIN, 13);
+public class FontDialog extends JDialog implements ActionListener{		
 	
 	JComboBox fontCombo=null;
 	JComboBox fontSize=null;
@@ -53,24 +50,14 @@ public class FontDialog extends JDialog implements ActionListener{
         String[] fontNames = ge.getAvailableFontFamilyNames();    
         fontCombo = new JComboBox(fontNames);
         
-        String fn=curFont.getFontName();
-        System.out.println(fn);
-        for(int i=0;i<fontNames.length;i++){
-        	System.out.println(fontNames[i]);
+        String fn=Main.curFont.getFontName();        
+        for(int i=0;i<fontNames.length;i++){        	
         	if(fontNames[i].equals(fn)){
         		fontCombo.setSelectedIndex(i);
         		break;
         	}
         }        
-        
-        int size = curFont.getSize();
-        System.out.println(size);
-        for(int i=0;i<fontSizes.length;i++){        	
-        	if(fontSizes[i].equals(""+size)){
-        		fontCombo.setSelectedIndex(i);
-        		break;
-        	}
-        }     
+                
         setLocation(300, 300);
         //setSize(400, 300);
         plain = new JRadioButton ("Plain");
@@ -78,7 +65,7 @@ public class FontDialog extends JDialog implements ActionListener{
         italic = new JRadioButton ("Italic");
         bni = new JRadioButton ("B&I");
                 
-        int stl = curFont.getStyle();
+        int stl = Main.curFont.getStyle();
         
         JLabel fs = new JLabel ("Font:");
         JLabel ss = new JLabel ("Size:");
@@ -86,6 +73,15 @@ public class FontDialog extends JDialog implements ActionListener{
         //fontsize.setToolTipText("Font Size");
         final JPanel style1 = new JPanel();
         fontSize = new JComboBox(fontSizes);
+        
+        int size = Main.curFont.getSize();        
+        for(int i=0;i<fontSizes.length;i++){                	
+        	if(fontSizes[i].equals(""+size)){
+        		fontSize.setSelectedIndex(i);
+        		break;
+        	}
+        }    
+        
         style1.setLayout(new BoxLayout(style1, BoxLayout.X_AXIS));
         final JPanel fontName = new JPanel();
         fontName.setLayout(new BoxLayout(fontName, BoxLayout.Y_AXIS));
@@ -99,7 +95,7 @@ public class FontDialog extends JDialog implements ActionListener{
         JPanel sampleText = new JPanel ();
         ButtonGroup group = new ButtonGroup();
         preview = new JButton("Preview");
-        sample.setFont(curFont);
+        sample.setFont(Main.curFont);
         fontName.add(fs);
         fontName.add(fontCombo);
         fontspec.add(ss);
@@ -155,7 +151,7 @@ public class FontDialog extends JDialog implements ActionListener{
 		// TODO Auto-generated method stub
 		System.out.println("Success");
 		if(preview==e.getSource()){
-			int style = curFont.getStyle();
+			int style = Main.curFont.getStyle();
 			if (plain.isSelected())
 			style = java.awt.Font.PLAIN;
 			else if (bold.isSelected())
@@ -165,14 +161,14 @@ public class FontDialog extends JDialog implements ActionListener{
 			else if (bni.isSelected())
 				style = java.awt.Font.BOLD | java.awt.Font.ITALIC;
 			String sizeoffont = (String)fontSize.getSelectedItem();
-			int size = curFont.getSize();
+			int size = Main.curFont.getSize();
 			try
 			{
 				size = Integer.parseInt(sizeoffont);
 			}
 			catch (Exception e1)
 			{
-				size = curFont.getSize();
+				size = Main.curFont.getSize();
 			}
 			Font font_dec = null;
 			try 
@@ -188,7 +184,7 @@ public class FontDialog extends JDialog implements ActionListener{
 			}
 		else if(ok==e.getSource()){
 			repaint();
-			int style = curFont.getStyle();
+			int style = Main.curFont.getStyle();
 			if (plain.isSelected())
 				style = java.awt.Font.PLAIN;
 			else if (bold.isSelected())
@@ -198,7 +194,7 @@ public class FontDialog extends JDialog implements ActionListener{
 			else if (bni.isSelected())
 				style = java.awt.Font.BOLD | java.awt.Font.ITALIC;
 			String sizeoffont = (String)fontSize.getSelectedItem();
-			int size = curFont.getSize();
+			int size = Main.curFont.getSize();
 			try
 			{
 				size = Integer.parseInt(sizeoffont);
@@ -209,19 +205,13 @@ public class FontDialog extends JDialog implements ActionListener{
 			String name = (String)fontCombo.getSelectedItem();
 			Font font_dec = java.awt.Font.decode(name);
 			Font font = new Font (font_dec.getFontName(), style, size);
-			Component[] cp = jTabbedPane.getComponents();
-			for (int i=0; i<cp.length; i++)
-			{
-				if (i != 1)
-				{System.out.println(cp[i]);
-					RTextScrollPane rt = (RTextScrollPane)(cp[i]);
-					JViewport jv = (JViewport)(rt.getComponent(0));
-					RSyntaxTextAreaExt rs = (RSyntaxTextAreaExt)(jv.getComponent(0));
-					rs.setFont(font);
-				}
+			Main.curFont = font;
+			for(int i=0;i<jTabbedPane.getTabCount();i++){
+				Component[] cp = ((JViewport)((JScrollPane)((jTabbedPane.getComponentAt(i)))).getComponent(0)).getComponents();
+				RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
+				editorCur.setFont(font);
 			}
-			pack();
-			curFont = font;
+			pack();			
 			dispose();
 			}
 		else if(cancel==e.getSource()){

@@ -57,7 +57,7 @@ public class neWListener implements ActionListener,Constants{
 				}
 			});
 			
-			
+			editorCur.setFont(Main.curFont);
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			ButtonTabComponent btc = new ButtonTabComponent(frame.jTabbedPane);

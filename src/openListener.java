@@ -25,6 +25,7 @@ public class openListener implements ActionListener, Constants {
 
 	void openFile(File file){
 		RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt(file);
+		editorCur.setFont(Main.curFont);
 		RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
 		scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		ButtonTabComponent btc = new ButtonTabComponent(frame.jTabbedPane);
