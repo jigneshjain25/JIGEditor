@@ -59,8 +59,9 @@ public class Main implements Constants{
 	
 	JMenu pref = new JMenu ("Preferences");
 	JMenu defCode = new JMenu ("Default Code");
-	JCheckBoxMenuItem wordWrap = new JCheckBoxMenuItem("Word Wrap",true);
-	JCheckBoxMenuItem codeFold = new JCheckBoxMenuItem("Code Folding",false);
+	JMenuItem security = new JMenuItem("Security");
+	JCheckBoxMenuItem wordWrap = new JCheckBoxMenuItem("Word Wrap",false);
+	JCheckBoxMenuItem codeFold = new JCheckBoxMenuItem("Code Folding",true);
 	JCheckBoxMenuItem lineNumber = new JCheckBoxMenuItem("Line Number",true);
 	
 	JMenu search = new JMenu("Search");
@@ -108,10 +109,7 @@ public class Main implements Constants{
 		cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,ActionEvent.CTRL_MASK));	//Ctrl + x
 		paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK));	//Ctrl + v
 		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,ActionEvent.CTRL_MASK));	//Ctrl + z
-		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,ActionEvent.CTRL_MASK));	//Ctrl + y
-		wordWrap.addActionListener(new prefListener(this));
-		codeFold.addActionListener(new prefListener(this));
-		lineNumber.addActionListener(new prefListener(this));
+		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,ActionEvent.CTRL_MASK));	//Ctrl + y		
 
 		neW.addActionListener(new neWListener(this));
 		open.addActionListener(new openListener(this));
@@ -125,6 +123,10 @@ public class Main implements Constants{
 		FontMenu.addActionListener(new FontListener(this));
 		undo.addActionListener(new undoListener(this));
 		redo.addActionListener(new redoListener(this));
+		wordWrap.addActionListener(new prefListener(this));
+		codeFold.addActionListener(new prefListener(this));
+		lineNumber.addActionListener(new prefListener(this));
+		security.addActionListener(new SecurityListener(this));
 
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
@@ -150,7 +152,8 @@ public class Main implements Constants{
 		search.add(replace);
 		search.add(replaceAll);
 
-		
+		undo.setEnabled(false);
+		redo.setEnabled(false);
 		
 		lang.setMnemonic('l');		// open up language menu when user presses Alt + l
 		for(int i=0;i<34;i++)
@@ -170,9 +173,12 @@ public class Main implements Constants{
 		}
 		
 		pref.add(defCode);
+		pref.addSeparator();
 		pref.add(codeFold);
 		pref.add(lineNumber);
 		pref.add(wordWrap);
+		pref.addSeparator();
+		pref.add(security);
 		
 		myMenu.add(file);
 		myMenu.add(edit);

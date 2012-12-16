@@ -23,8 +23,13 @@ public class tabFocusListener implements FocusListener {
     	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
     	for(int i=0;i<frame.langs.length;i++)
     		frame.langs[i].setSelected(false);
-    		frame.langs[editorCur.StyleCodeNo].setSelected(true);
-    		frame.lang.repaint();
+    	frame.langs[editorCur.StyleCodeNo].setSelected(true);
+    	frame.lang.repaint();
+    	if(editorCur.canRedo()) frame.redo.setEnabled(true);
+    	else frame.redo.setEnabled(false);
+    	if(editorCur.canUndo()) frame.undo.setEnabled(true);
+    	else frame.undo.setEnabled(false);
+    	
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

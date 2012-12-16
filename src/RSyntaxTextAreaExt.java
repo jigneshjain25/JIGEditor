@@ -67,20 +67,23 @@ public class RSyntaxTextAreaExt extends RSyntaxTextArea implements Constants, Do
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
-		changed=true;
-		
+		changed=true;		
 	}
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
-		changed=true;
-		
+		changed=true;		
+		obj.undo.setEnabled(true);
+		if(this.canRedo()) obj.redo.setEnabled(true);
+		else obj.redo.setEnabled(false);
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		changed=true;
-		
+		changed=true;	
+		obj.redo.setEnabled(true);
+		if(this.canUndo()) obj.undo.setEnabled(true);
+		else obj.undo.setEnabled(false);
 	}
 	
 	

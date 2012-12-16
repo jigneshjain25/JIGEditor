@@ -46,6 +46,8 @@ public class openListener implements ActionListener, Constants {
 			}
 		
 		editorCur.requestFocusInWindow();
+		frame.undo.setEnabled(false);
+    	frame.redo.setEnabled(false);
 		editorCur.changed=false;
 	}	
 }

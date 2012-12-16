@@ -66,5 +66,7 @@ public class neWListener implements ActionListener,Constants{
 			frame.jTabbedPane.setTabComponentAt(frame.jTabbedPane.getTabCount()-1, btc);
         	frame.jTabbedPane.setSelectedIndex(frame.jTabbedPane.getTabCount()-1);		
         	editorCur.requestFocusInWindow();
+        	frame.undo.setEnabled(false);
+        	frame.redo.setEnabled(false);
 		}
 	}

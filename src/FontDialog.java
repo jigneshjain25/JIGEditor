@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JViewport;
 
 public class FontDialog extends JDialog implements ActionListener{		
@@ -23,7 +24,7 @@ public class FontDialog extends JDialog implements ActionListener{
 	JComboBox fontCombo=null;
 	JComboBox fontSize=null;
 	
-	JLabel sample=null;
+	JTextArea sample=null;
 	
 	JRadioButton plain=null;
 	JRadioButton bold=null;
@@ -59,7 +60,7 @@ public class FontDialog extends JDialog implements ActionListener{
         }        
                 
         setLocation(300, 300);
-        //setSize(400, 300);
+        //setSize(400, 200);
         plain = new JRadioButton ("Plain");
         bold = new JRadioButton ("Bold");
         italic = new JRadioButton ("Italic");
@@ -90,8 +91,10 @@ public class FontDialog extends JDialog implements ActionListener{
         final JPanel buttons = new JPanel ();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
         cancel = new JButton("Cancel");
-        ok = new JButton ("OK");
-        sample = new JLabel ("The Quick Brown Fox Jumps Over The Lazy Dog");
+        ok = new JButton ("OK");        
+        sample = new JTextArea ("The Quick Brown Fox Jumps Over The Lazy Dog",5,3);
+        sample.setEditable(false);
+        JScrollPane jsp = new JScrollPane(sample);        
         JPanel sampleText = new JPanel ();
         ButtonGroup group = new ButtonGroup();
         preview = new JButton("Preview");
