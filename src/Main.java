@@ -47,6 +47,7 @@ public class Main implements Constants{
 	JMenuItem save=new JMenuItem("Save");
 	JMenuItem saveAs=new JMenuItem("Save As");
 	JMenuItem close=new JMenuItem("Close");
+	JMenuItem print=new JMenuItem("Print");
 	JMenuItem quit=new JMenuItem("Quit");
 
 	JMenu edit=new JMenu("Edit");
@@ -75,7 +76,6 @@ public class Main implements Constants{
 	
 	JMenu search = new JMenu("Search");
 	JMenuItem find = new JMenuItem("Find and Replace");
-
 
 	JFileChooser fileSave=new JFileChooser();
 	JFileChooser fileOpen=new JFileChooser();
@@ -120,7 +120,8 @@ public class Main implements Constants{
 		paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK));	//Ctrl + v
 		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,ActionEvent.CTRL_MASK));	//Ctrl + z
 		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,ActionEvent.CTRL_MASK));	//Ctrl + y
-		find.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H,ActionEvent.CTRL_MASK));
+		find.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H,ActionEvent.CTRL_MASK));	//Ctrl + h
+		print.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,ActionEvent.CTRL_MASK));	//Ctrl + p
 
 		neW.addActionListener(new neWListener(this));
 		open.addActionListener(new openListener(this));
@@ -140,6 +141,8 @@ public class Main implements Constants{
 		encrypt.addActionListener(new SecurityListener(this));
 		decrypt.addActionListener(new SecurityListener(this));
 		find.addActionListener(new findListener(this));
+		print.addActionListener(new printListener(this));
+		
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
 		file.add(open);
@@ -148,7 +151,10 @@ public class Main implements Constants{
 		file.add(saveAs);
 		file.add(close);
 		file.addSeparator();
+		file.add(print);
+		file.addSeparator();
 		file.add(quit);		
+		
 
 		edit.setMnemonic('e');		// open up edit menu when user presses Alt + e
 		edit.add(undo);
@@ -160,6 +166,7 @@ public class Main implements Constants{
 		edit.addSeparator();
 		edit.add(FontMenu);
 		
+		search.setMnemonic('s');
 		search.add(find);
 
 		undo.setEnabled(false);
