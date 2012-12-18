@@ -10,7 +10,10 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.PlainDocument;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class neWListener implements ActionListener,Constants{
@@ -64,7 +67,11 @@ public class neWListener implements ActionListener,Constants{
 			ButtonTabComponent btc = new ButtonTabComponent(frame.jTabbedPane);
 			frame.jTabbedPane.add("Untitled"+(frame.tabCnt++),scrollerCur); 
 			frame.jTabbedPane.setTabComponentAt(frame.jTabbedPane.getTabCount()-1, btc);
-        	frame.jTabbedPane.setSelectedIndex(frame.jTabbedPane.getTabCount()-1);		
+        	frame.jTabbedPane.setSelectedIndex(frame.jTabbedPane.getTabCount()-1);	
+        	RSyntaxDocument doc = (RSyntaxDocument)editorCur.getDocument();
+			if (doc instanceof PlainDocument) {
+				((AbstractDocument) doc).putProperty(PlainDocument.tabSizeAttribute, frame.curTabWidth);				
+			}
         	editorCur.requestFocusInWindow();
         	frame.undo.setEnabled(false);
         	frame.redo.setEnabled(false);

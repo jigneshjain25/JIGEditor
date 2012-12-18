@@ -21,7 +21,7 @@ public class RSyntaxTextAreaExt extends RSyntaxTextArea implements Constants, Do
 	File file=null;
 	int StyleCodeNo;
 	boolean changed=false;
-	
+		
 	RSyntaxTextAreaExt() {
 		StyleCodeNo=0;
 		setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_NONE);

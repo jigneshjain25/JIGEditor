@@ -35,7 +35,12 @@ public interface Constants {
 				 "latex","lisp","lua","makefile","mxml","perl","php","properties","python","ruby","sas","scala",
 				 "sql","tcl","sh","bat","xml"
 		 };
+		 
+		 String[] TABSIZES={
+				 "1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"
+		 };
 
+		 byte[] keyEncr = {0x0c , 0x0a , 0x0f , 0x0e , 0x0b ,0x0b  };
 
 		 @SuppressWarnings("serial")
 		Map<String, String> EXTCODES = 

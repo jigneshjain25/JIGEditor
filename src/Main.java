@@ -20,9 +20,14 @@ import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.PlainDocument;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.w3c.dom.Document;
 
 public class Main implements Constants{
 	
@@ -59,10 +64,14 @@ public class Main implements Constants{
 	
 	JMenu pref = new JMenu ("Preferences");
 	JMenu defCode = new JMenu ("Default Code");
-	JMenuItem security = new JMenuItem("Security");
+	JMenu security = new JMenu("Security");
+	JMenuItem encrypt = new JMenuItem("Encrypt");
+	JMenuItem decrypt = new JMenuItem("Decrypt");
 	JCheckBoxMenuItem wordWrap = new JCheckBoxMenuItem("Word Wrap",false);
 	JCheckBoxMenuItem codeFold = new JCheckBoxMenuItem("Code Folding",true);
 	JCheckBoxMenuItem lineNumber = new JCheckBoxMenuItem("Line Number",true);
+	JMenu tabSize = new JMenu("Tab Width");
+	JCheckBoxMenuItem[] tabSizes=new JCheckBoxMenuItem[34];
 	
 	JMenu search = new JMenu("Search");
 	JMenuItem find = new JMenuItem("Find");
@@ -74,6 +83,8 @@ public class Main implements Constants{
 	
 	static java.awt.Font curFont = new Font("Courier New", Font.PLAIN, 13);
 
+	int curTabWidth = 8;
+	
 	public static void main(String[] args) {
 		//setting nimbus look if available
 		try {
@@ -126,7 +137,8 @@ public class Main implements Constants{
 		wordWrap.addActionListener(new prefListener(this));
 		codeFold.addActionListener(new prefListener(this));
 		lineNumber.addActionListener(new prefListener(this));
-		security.addActionListener(new SecurityListener(this));
+		encrypt.addActionListener(new SecurityListener(this));
+		decrypt.addActionListener(new SecurityListener(this));
 
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
@@ -172,13 +184,25 @@ public class Main implements Constants{
 			defCode.add(langItems[i]);
 		}
 		
+		for(int i=0;i<16;i++)
+		{
+			tabSizes[i] = new JCheckBoxMenuItem(TABSIZES[i]);
+			tabSizes[i].addActionListener(new TabSizeListener(this,i));
+			tabSize.add(tabSizes[i]);								
+		}
+		tabSizes[7].setSelected(true);
+		
 		pref.add(defCode);
 		pref.addSeparator();
+		pref.add(tabSize);
 		pref.add(codeFold);
 		pref.add(lineNumber);
 		pref.add(wordWrap);
 		pref.addSeparator();
 		pref.add(security);
+		
+		security.add(encrypt);
+		security.add(decrypt);
 		
 		myMenu.add(file);
 		myMenu.add(edit);
@@ -200,8 +224,8 @@ public class Main implements Constants{
 		frame.addWindowListener(new myWindowListener(this));
 		frame.setSize(900,800);
 		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);	
-		editor.requestFocusInWindow();
+		frame.setVisible(true);			
+		editor.requestFocusInWindow();		
 	}
 	
 	

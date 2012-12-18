@@ -33,9 +33,7 @@ public class saveListener implements ActionListener, Constants {
 
 	void saveFile(RSyntaxTextAreaExt editorCur,File file){
 		try{
-			frame.jTabbedPane.setTitleAt(frame.jTabbedPane.getSelectedIndex(), file.getName());
-			//Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
-        //	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
+			frame.jTabbedPane.setTitleAt(frame.jTabbedPane.getSelectedIndex(), file.getName());			
         	editorCur.update(file);
 			BufferedWriter writer=new BufferedWriter(new FileWriter(file));
 			writer.write(editorCur.getText());

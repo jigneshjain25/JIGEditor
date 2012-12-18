@@ -92,7 +92,7 @@ public class FontDialog extends JDialog implements ActionListener{
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
         cancel = new JButton("Cancel");
         ok = new JButton ("OK");        
-        sample = new JTextArea ("The Quick Brown Fox Jumps Over The Lazy Dog",5,3);
+        sample = new JTextArea ("The Quick Brown Fox Jumps Over The Lazy Dog",3,40);
         sample.setEditable(false);
         JScrollPane jsp = new JScrollPane(sample);        
         JPanel sampleText = new JPanel ();
@@ -125,7 +125,7 @@ public class FontDialog extends JDialog implements ActionListener{
         buttons.add(ok);
         buttons.add(cancel);
         
-        sampleText.add(sample);
+        sampleText.add(jsp);
         
         JPanel panel1 = new JPanel();
         panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
