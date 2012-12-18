@@ -74,9 +74,8 @@ public class Main implements Constants{
 	JCheckBoxMenuItem[] tabSizes=new JCheckBoxMenuItem[34];
 	
 	JMenu search = new JMenu("Search");
-	JMenuItem find = new JMenuItem("Find");
-	JMenuItem replace = new JMenuItem("Replace");
-	JMenuItem replaceAll = new JMenuItem("ReplaceAll");
+	JMenuItem find = new JMenuItem("Find and Replace");
+
 
 	JFileChooser fileSave=new JFileChooser();
 	JFileChooser fileOpen=new JFileChooser();
@@ -120,7 +119,8 @@ public class Main implements Constants{
 		cut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,ActionEvent.CTRL_MASK));	//Ctrl + x
 		paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK));	//Ctrl + v
 		undo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,ActionEvent.CTRL_MASK));	//Ctrl + z
-		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,ActionEvent.CTRL_MASK));	//Ctrl + y		
+		redo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,ActionEvent.CTRL_MASK));	//Ctrl + y
+		find.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H,ActionEvent.CTRL_MASK));
 
 		neW.addActionListener(new neWListener(this));
 		open.addActionListener(new openListener(this));
@@ -139,7 +139,7 @@ public class Main implements Constants{
 		lineNumber.addActionListener(new prefListener(this));
 		encrypt.addActionListener(new SecurityListener(this));
 		decrypt.addActionListener(new SecurityListener(this));
-
+		find.addActionListener(new findListener(this));
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
 		file.add(open);
@@ -161,8 +161,6 @@ public class Main implements Constants{
 		edit.add(FontMenu);
 		
 		search.add(find);
-		search.add(replace);
-		search.add(replaceAll);
 
 		undo.setEnabled(false);
 		redo.setEnabled(false);
