@@ -1,4 +1,6 @@
 import java.awt.Component;
+import java.awt.Font;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -58,7 +60,18 @@ class FontListener implements ActionListener {
 
 	public void actionPerformed(ActionEvent e)
 	{
-		FontDialog fontDialog = new FontDialog(frame.frame,"Font & Style",true,frame.jTabbedPane);
+		/*FontDialog fontDialog = new FontDialog(frame.frame,"Font & Style",true,frame.jTabbedPane);*/
+		
+		JFontChooser fontChooser = new JFontChooser();
+		int result = fontChooser.showDialog(frame.frame);
+		if(result == JFontChooser.CANCEL_OPTION)return;
+		Main.curFont = fontChooser.getSelectedFont();
+		for(int i=0;i<frame.jTabbedPane.getTabCount();i++){
+			Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getComponentAt(i)))).getComponent(0)).getComponents();
+			RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
+			editorCur.setFont(Main.curFont);
+		}
+		
 	}
 }
 
