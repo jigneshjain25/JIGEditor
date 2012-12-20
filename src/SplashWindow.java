@@ -24,5 +24,12 @@ class SplashWindow extends JWindow
         setVisible(true);
         screenSize = null;
         labelSize = null;
+        try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			System.out.println("Interupted fom sleep :Splash Screen");
+			e.printStackTrace();
+		}
+        dispose();
     }
 }

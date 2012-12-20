@@ -104,6 +104,7 @@ public class Main implements Constants{
 		
 		Main o=new Main();
 		RSyntaxTextAreaExt.obj=o;
+		SplashWindow s= new SplashWindow("SplashTest.png");
 		o.go();
 	}
 
