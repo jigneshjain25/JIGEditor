@@ -193,7 +193,7 @@ public class Main implements Constants{
 		for(int i=0;i<16;i++)
 		{
 			tabSizes[i] = new JCheckBoxMenuItem(TABSIZES[i]);
-			tabSizes[i].addActionListener(new TabSizeListener(this,i));
+			tabSizes[i].addActionListener(new TabSizeListener(this,i+1));
 			tabSize.add(tabSizes[i]);								
 		}
 		tabSizes[7].setSelected(true);
