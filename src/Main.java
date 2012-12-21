@@ -1,4 +1,5 @@
 import java.awt.AWTKeyStroke;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -17,6 +18,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -76,6 +78,9 @@ public class Main implements Constants{
 	
 	JMenu search = new JMenu("Search");
 	JMenuItem find = new JMenuItem("Find and Replace");
+	
+	JMenu export = new JMenu("Export");
+	JMenuItem pasteBin = new JMenuItem("Upload to PasteBin");
 
 	JFileChooser fileSave=new JFileChooser();
 	JFileChooser fileOpen=new JFileChooser();
@@ -98,10 +103,10 @@ public class Main implements Constants{
 		    try {
 		        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 		    } catch (Exception ex) {
-		        
+
 		    }
 		}
-		
+
 		Main o=new Main();
 		RSyntaxTextAreaExt.obj=o;
 		SplashWindow s= new SplashWindow("SplashTest.png");
@@ -143,6 +148,7 @@ public class Main implements Constants{
 		decrypt.addActionListener(new SecurityListener(this));
 		find.addActionListener(new findListener(this));
 		print.addActionListener(new printListener(this));
+		pasteBin.addActionListener(new pastebinListener(this));
 		
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
@@ -170,6 +176,9 @@ public class Main implements Constants{
 		search.setMnemonic('s');
 		search.add(find);
 
+		export.setMnemonic('x');
+		export.add(pasteBin);
+		
 		undo.setEnabled(false);
 		redo.setEnabled(false);
 		
@@ -196,7 +205,7 @@ public class Main implements Constants{
 			tabSizes[i].addActionListener(new TabSizeListener(this,i+1));
 			tabSize.add(tabSizes[i]);								
 		}
-		tabSizes[7].setSelected(true);
+		tabSizes[5].setSelected(true);
 		
 		pref.add(defCode);
 		pref.addSeparator();
@@ -215,6 +224,7 @@ public class Main implements Constants{
 		myMenu.add(lang);
 		myMenu.add(search);
 		myMenu.add(pref);
+		myMenu.add(export);
 		
 		setupTabTraversalKeys(jTabbedPane);		
 		jTabbedPane.addFocusListener(new tabFocusListener(this));
@@ -257,3 +267,4 @@ public class Main implements Constants{
 	    inputMap.put(ctrlShiftTab, "navigatePrevious");	    
 	  }
 }
+
