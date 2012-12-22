@@ -1,6 +1,10 @@
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.UnsupportedEncodingException;
@@ -17,6 +21,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+
+import org.fife.ui.rsyntaxtextarea.RtfGenerator;
+import org.fife.ui.rsyntaxtextarea.modes.CPlusPlusTokenMaker;
 
 
 public class pastebinListener implements ActionListener {
@@ -125,8 +132,14 @@ class PasteBinDialog extends JDialog implements ActionListener{
 				dispose();
 				if(response.substring(0, 15).equals("Bad API request"))
 					JOptionPane.showMessageDialog(null, "Uploading Failed!\nPlease try later!");
-				else
-					JOptionPane.showMessageDialog(null, "Your PasteBin post URL:\n"+response);
+				else{										
+					int op=JOptionPane.showConfirmDialog(null, "Your PasteBin post URL:\n"+response+"\nDo you want to copy URL?","JIGEditor Message",JOptionPane.YES_NO_OPTION);;
+					if(op==JOptionPane.YES_OPTION){
+						Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+						// Create the RTF selection.
+						cb.setContents(new StringSelection(response),null);
+					}
+				}
 				}
 				}
 				else{
@@ -134,8 +147,14 @@ class PasteBinDialog extends JDialog implements ActionListener{
 					dispose();
 					if(response.substring(0, 15).equals("Bad API request"))
 						JOptionPane.showMessageDialog(null, "Uploading Failed!\nPlease try later!");
-					else
-						JOptionPane.showMessageDialog(null, "Your PasteBin post URL:\n"+response);
+					else{
+						int op=JOptionPane.showConfirmDialog(null, "Your PasteBin post URL:\n"+response+"\nDo you want to copy URL?","JIGEditor Message",JOptionPane.YES_NO_OPTION);;
+						if(op==JOptionPane.YES_OPTION){
+							Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+							// Create the RTF selection.
+							cb.setContents(new StringSelection(response),null);
+						}
+					}
 				}				
 			} catch (Exception e1) {			
 				System.out.println("Error in connection!");

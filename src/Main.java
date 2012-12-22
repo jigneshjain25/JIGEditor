@@ -34,7 +34,7 @@ import org.w3c.dom.Document;
 public class Main implements Constants{
 	
 	int tabCnt=1;			//Counts total tabs created	
-
+	
 	JTabbedPane jTabbedPane=new JTabbedPane();
 	RSyntaxTextAreaExt editor=new RSyntaxTextAreaExt();
 	RTextScrollPane scroller = new RTextScrollPane(editor);

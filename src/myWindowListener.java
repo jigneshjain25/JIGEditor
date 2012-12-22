@@ -4,6 +4,7 @@ import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 
@@ -24,34 +25,44 @@ public class myWindowListener implements WindowListener{
 		public void windowOpened(WindowEvent e) {}
 		public void windowIconified(WindowEvent e) {}
 		public void windowDeiconified(WindowEvent e) {}
-		public void windowDeactivated(WindowEvent e) {}
+		
+		public void windowDeactivated(WindowEvent e) {
+			int cnt = frame.jTabbedPane.getTabCount();			
+			for(int i=0;i<cnt;i++){
+				Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getComponentAt(i)))).getComponent(0)).getComponents();            
+		    	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]);
+		    	if(editorCur.file!=null){
+		    		editorCur.lastMod = editorCur.file.lastModified();		    		
+		    	}
+			}
+		}
+		
 		public void windowClosed(WindowEvent e) {}
-		public void windowActivated(WindowEvent e) {
-			Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();
-			RSyntaxTextAreaExt editorCur =(RSyntaxTextAreaExt) cp[0];
-			if(editorCur.file!=null){
-	    		try{	
-					FileReader fileReader=new FileReader(editorCur.file);
-					BufferedReader reader=new BufferedReader(fileReader);
-					String line=null;
-					String curText="";
-					while((line=reader.readLine())!=null)
-						curText+=line+"\n";
-					
-					if(!editorCur.getText().equals(curText)){
-						int n=JOptionPane.showConfirmDialog(null, "This file is changed outside JIGEditor!\nDo you want to make changes in JIGEditor?","JIGEditor",JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		
+		public void windowActivated(WindowEvent e) {							
+				Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
+		    	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]);
+		    	if(editorCur.file!=null){
+		    		long mod = editorCur.file.lastModified();
+		    		if(mod>editorCur.lastMod){
+		    			int n=JOptionPane.showConfirmDialog(null, "This file is changed outside JIGEditor!\nDo you want to make changes in JIGEditor?","JIGEditor",JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 						if(n==JOptionPane.YES_OPTION){
-							editorCur.setText(curText);
-						}
-						else{
-							saveFile(editorCur, editorCur.file);
-						}
-					}
-				}catch(Exception ex){
-					System.out.println("ERROR OPENING THE FILE");
-					ex.printStackTrace();
-				}
-	    	}    	
+							String curText = "";
+							FileReader fileReader;
+							try {
+								fileReader = new FileReader(editorCur.file);
+							
+							BufferedReader reader=new BufferedReader(fileReader);
+							String line=null;
+							while((line=reader.readLine())!=null)
+								curText+=line+"\n";	
+							editorCur.setText(curText);	
+							} catch (Exception e1) {
+								e1.printStackTrace();
+							}
+						}						
+		    		}
+		    	}			
 		}
 
 		public void windowClosing(WindowEvent e) {

@@ -1,4 +1,5 @@
 import java.awt.Component;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.BufferedReader;
@@ -22,45 +23,30 @@ public class tabFocusListener implements FocusListener {
 	}
 	
 	@Override
-	public void focusGained(FocusEvent arg0) {
-		try{		
+	public void focusGained(FocusEvent arg0) {		
 		Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
-    	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
-    	for(int i=0;i<frame.langs.length;i++)
-    		frame.langs[i].setSelected(false);
-    	frame.langs[editorCur.StyleCodeNo].setSelected(true);
-    	frame.lang.repaint();
-    	if(editorCur.canRedo()) frame.redo.setEnabled(true);
-    	else frame.redo.setEnabled(false);
-    	if(editorCur.canUndo()) frame.undo.setEnabled(true);
-    	else frame.undo.setEnabled(false);
-    	
-    	if(editorCur.file!=null){
-    		try{	
-				FileReader fileReader=new FileReader(editorCur.file);
-				BufferedReader reader=new BufferedReader(fileReader);
-				String line=null;
-				String curText="";
-				while((line=reader.readLine())!=null)
-					curText+=line+"\n";
-				
-				if(!editorCur.getText().equals(curText)){
-					int n=JOptionPane.showConfirmDialog(null, "This file is changed outside JIGEditor!\nDo you want to make changes in JIGEditor?","JIGEditor",JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-					if(n==JOptionPane.YES_OPTION){
-						editorCur.setText(curText);
-					}					
-					else{
-						saveFile(editorCur, editorCur.file);
+    	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]);    	
+    	if(editorCur.file!=null){    		
+    		long mod = editorCur.file.lastModified();
+    		if(mod>editorCur.lastMod){
+    			int n=JOptionPane.showConfirmDialog(null, "This file is changed outside JIGEditor!\nDo you want to make changes in JIGEditor?","JIGEditor",JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if(n==JOptionPane.YES_OPTION){
+					String curText = "";
+					FileReader fileReader;
+					try {
+						fileReader = new FileReader(editorCur.file);
+					
+					BufferedReader reader=new BufferedReader(fileReader);
+					String line=null;
+					while((line=reader.readLine())!=null)
+						curText+=line+"\n";	
+					editorCur.setText(curText);	
+					} catch (Exception e1) {
+						e1.printStackTrace();
 					}
-				}
-			}catch(Exception ex){
-				System.out.println("ERROR OPENING THE FILE");
-				ex.printStackTrace();
-			}
-    	}    	
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
+				}				
+    		}
+    	}		
 	}
 
 	@Override

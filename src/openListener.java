@@ -35,7 +35,7 @@ public class openListener implements ActionListener, Constants {
 		try {
 			openFile(frame.fileOpen.getSelectedFile());
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			
 		}			
 	}
 
@@ -64,7 +64,35 @@ public class openListener implements ActionListener, Constants {
 			{editorCur.append(new String(str,0,str.length));}
 			editorCur.setEditable(false);
 			fis.close();
-			
+			/*}
+			else{
+				String str = JOptionPane.showInputDialog(null, "Enter your key : ");
+    	    	if(str!=null) {    	    		
+        	    	try{
+        	    	Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        	    	SecretKeySpec key;
+        	    	Cipher cipher = Cipher.getInstance("AES/ECB/PKCS7Padding", "BC");
+        	    	byte[] input =new byte[50000];     	    	
+        	    	byte[] keyBytes = str.getBytes();        	    	
+        	    	key = new SecretKeySpec(keyBytes,0,16, "AES");        	    	
+    	    		FileInputStream fis1 = new FileInputStream(file.getAbsoluteFile());
+    	    		//fis.read(input, 0, keyValues.length);
+    				int ctLength = fis1.read(input);  System.out.println(ctLength);  	
+    				ctLength-=keyEncr.length;System.out.println(ctLength);
+    				cipher.init(Cipher.DECRYPT_MODE, key);    	  											    				
+    				byte[] plainText = new byte[cipher.getOutputSize(ctLength)];
+    				int ptLength = cipher.update(input, 6, ctLength, plainText, 0);    				
+    				ptLength += cipher.doFinal(plainText, ptLength);    				
+    				editorCur.setText(new String(plainText,0,ptLength));    				
+    				saveFile(editorCur, file);
+    				editorCur.setEditable(true);
+    				editorCur.changed = false;
+        	    	}
+        	    	catch(Exception e){
+        	    		System.out.println("Error in decryption!");
+        	    	}
+			}
+		}*/
 			}
 		else {					
 		try{	
@@ -72,8 +100,7 @@ public class openListener implements ActionListener, Constants {
 				BufferedReader reader=new BufferedReader(fileReader);
 				String line=null;
 				while((line=reader.readLine())!=null)
-					editorCur.append(line+"\n");
-				
+					editorCur.append(line+"\n");				
 			}catch(Exception ex){
 				System.out.println("ERROR OPENING THE FILE");
 				ex.printStackTrace();
@@ -85,24 +112,20 @@ public class openListener implements ActionListener, Constants {
 		}
 		editorCur.requestFocusInWindow();
 		frame.undo.setEnabled(false);
-    	frame.redo.setEnabled(false);
+    	frame.redo.setEnabled(false);     
+    	editorCur.lastMod = editorCur.file.lastModified();
 		editorCur.changed=false;
 				
 	}
 		void saveFile(RSyntaxTextAreaExt editorCur,File file){
-			try{
-				frame.jTabbedPane.setTitleAt(frame.jTabbedPane.getSelectedIndex(), file.getName());
-				//Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
-	        //	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 
-	        	editorCur.update(file);
+			try{				
 				BufferedWriter writer=new BufferedWriter(new FileWriter(file));
 				writer.write(editorCur.getText());
 				writer.close();
 				editorCur.changed=false;
 				
 			}catch(Exception ex){
-				System.out.println("Error saving the file");
-				ex.printStackTrace();
+				System.out.println("Error saving the file");				
 			}
-}
+		}
 	}

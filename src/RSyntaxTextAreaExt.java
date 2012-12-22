@@ -18,13 +18,19 @@ import javax.swing.event.DocumentListener;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
+import org.fife.ui.autocomplete.*;
+import org.omg.CORBA.portable.InputStream;
+
+
+
 public class RSyntaxTextAreaExt extends RSyntaxTextArea implements Constants, DocumentListener{
 
 	//Main object required for updating language menu
 	static Main obj;
-	public File file=null;
+	File file=null;
 	int StyleCodeNo;
 	boolean changed=false;	
+	long lastMod = 0; 
 		
 	RSyntaxTextAreaExt() {		
 		StyleCodeNo=0;
