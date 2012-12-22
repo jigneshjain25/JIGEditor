@@ -74,6 +74,7 @@ public class Main implements Constants{
 	JCheckBoxMenuItem codeFold = new JCheckBoxMenuItem("Code Folding",true);
 	JCheckBoxMenuItem lineNumber = new JCheckBoxMenuItem("Line Number",true);
 	JMenu tabSize = new JMenu("Tab Width");
+	JMenuItem theme = new JMenuItem("Theme");
 	JCheckBoxMenuItem[] tabSizes=new JCheckBoxMenuItem[34];
 	
 	JMenu search = new JMenu("Search");
@@ -151,6 +152,7 @@ public class Main implements Constants{
 		print.addActionListener(new printListener(this));
 		pasteBin.addActionListener(new pastebinListener(this));
 		email.addActionListener(new emailListener(this));
+		theme.addActionListener(new themeListener(this));
 		
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
@@ -216,6 +218,7 @@ public class Main implements Constants{
 		pref.add(codeFold);
 		pref.add(lineNumber);
 		pref.add(wordWrap);
+		pref.add(theme);
 		pref.addSeparator();
 		pref.add(security);
 		
