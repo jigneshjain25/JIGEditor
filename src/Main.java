@@ -81,6 +81,7 @@ public class Main implements Constants{
 	
 	JMenu export = new JMenu("Export");
 	JMenuItem pasteBin = new JMenuItem("Upload to PasteBin");
+	JMenuItem email = new JMenuItem("Email me");
 
 	JFileChooser fileSave=new JFileChooser();
 	JFileChooser fileOpen=new JFileChooser();
@@ -149,6 +150,7 @@ public class Main implements Constants{
 		find.addActionListener(new findListener(this));
 		print.addActionListener(new printListener(this));
 		pasteBin.addActionListener(new pastebinListener(this));
+		email.addActionListener(new emailListener(this));
 		
 		file.setMnemonic('f');		//opens file menu when user presses Alt + f
 		file.add(neW);
@@ -178,6 +180,7 @@ public class Main implements Constants{
 
 		export.setMnemonic('x');
 		export.add(pasteBin);
+		export.add(email);
 		
 		undo.setEnabled(false);
 		redo.setEnabled(false);

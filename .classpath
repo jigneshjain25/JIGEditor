@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/autocomplete-1.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk12-130.jar"/>
+	<classpathentry kind="lib" path="lib/javamail-1.4.5/mail.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

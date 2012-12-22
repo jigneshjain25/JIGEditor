@@ -104,7 +104,7 @@ public class themeListener implements ActionListener
 					{
 						editors[i].setSyntaxScheme(newScheme);
 					}
-					frame.scheme = newScheme;
+				//	frame.scheme = newScheme;
 				}
 				else
 				{
