@@ -29,11 +29,11 @@ public class defaultCodeListener implements ActionListener,Constants{
 	public void actionPerformed(ActionEvent e)
 	{
 		final JFrame defC = new JFrame("Default code for "+CHECKMENUCODES[codeNo]);
-		defC.setSize(600, 400);
+		defC.setSize(480, 300);
 		final RSyntaxTextAreaExt defaultCode = new RSyntaxTextAreaExt();
 		defaultCode.setSyntaxEditingStyle(STYLECODES[codeNo]);
-		defaultCode.setRows(20);
-		defaultCode.setColumns(40);
+		defaultCode.setRows(40);
+		defaultCode.setColumns(30);
 		RTextScrollPane scrollerCur = new RTextScrollPane(defaultCode);
 		scrollerCur.setHorizontalScrollBarPolicy(RTextScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollerCur.setVerticalScrollBarPolicy(RTextScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -43,7 +43,11 @@ public class defaultCodeListener implements ActionListener,Constants{
 		JButton ok = new JButton("OK");
 		JButton cancel = new JButton("Cancel");
 		textP.add(defaultCode, scrollerCur);
-		File file = new File("Source/"+CHECKMENUCODES[codeNo]+".txt");
+		
+		File theDir = new File(".jigeditor_defcode");
+		if(!theDir.exists())theDir.mkdir();
+		
+		File file = new File(".jigeditor_defcode/"+CHECKMENUCODES[codeNo]+".txt");
 		if (file.exists())
 		{
 			try{	
@@ -73,7 +77,7 @@ public class defaultCodeListener implements ActionListener,Constants{
 		ok.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
 			{
-				File file = new File("Source/"+CHECKMENUCODES[codeNo]+".txt");
+				File file = new File(".jigeditor_defcode/"+CHECKMENUCODES[codeNo]+".txt");
 				try
 				{
 					BufferedWriter writer=new BufferedWriter(new FileWriter(file));

@@ -26,7 +26,7 @@ class SplashWindow
         int y = (screen.height - height) / 2;
         jw.setBounds(x, y, width, height);
         
-        
+  
         JLabel label = new JLabel(new ImageIcon(Toolkit.getDefaultToolkit().getImage(getClass().getResource("images/SplashTest.png"))));
         content.add(label, BorderLayout.CENTER);
         Color oraRed = new Color(156, 20, 20, 255);
@@ -38,7 +38,7 @@ class SplashWindow
       
         
         try {
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			System.out.println("Interupted fom sleep :Splash Screen");
 			e.printStackTrace();
