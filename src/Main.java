@@ -111,7 +111,7 @@ public class Main implements Constants{
 
 		Main o=new Main();
 		RSyntaxTextAreaExt.obj=o;
-		SplashWindow s= new SplashWindow("SplashTest.png");
+		SplashWindow s= new SplashWindow();
 		o.go();
 	}
 
@@ -244,7 +244,8 @@ public class Main implements Constants{
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setJMenuBar(myMenu);
 		frame.addWindowListener(new myWindowListener(this));
-		frame.setSize(900,800);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		//frame.setSize(900,800);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);			
 		editor.requestFocusInWindow();		
