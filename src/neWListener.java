@@ -19,14 +19,17 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 public class neWListener implements ActionListener,Constants{
 	
 	Main frame=null;
+	int index;
 	
-	neWListener(Main main){
+	neWListener(Main main,int i){
 		frame = main;
+		index=i;
 	}
 	
 		public void actionPerformed(ActionEvent e) {
 			final RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
-			final JFrame langFrame = new JFrame ("Select Language");
+			
+			/*final JFrame langFrame = new JFrame ("Select Language");
 			final JComboBox langSelect = new JComboBox(CHECKMENUCODES);
 			JPanel buttons = new JPanel();
 			buttons.setLayout(new BorderLayout());
@@ -60,7 +63,7 @@ public class neWListener implements ActionListener,Constants{
 					langFrame.dispose();
 				}
 			});
-			
+			*/
 			editorCur.setFont(Main.curFont);
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -75,5 +78,24 @@ public class neWListener implements ActionListener,Constants{
         	editorCur.requestFocusInWindow();
         	frame.undo.setEnabled(false);
         	frame.redo.setEnabled(false);
+        	
+        	editorCur.setSyntaxEditingStyle(STYLECODES[index]);
+			editorCur.StyleCodeNo=index;
+			File file = new File("Source/"+CHECKMENUCODES[index]+".txt");
+			if (file.exists())
+			{
+				try{	
+					FileReader fileReader=new FileReader(file);
+					BufferedReader reader=new BufferedReader(fileReader);
+					String line=null;
+					while((line=reader.readLine())!=null)
+						editorCur.append(line+"\n");
+					
+				}catch(Exception ex){
+				System.out.println("ERROR OPENING THE FILE");
+				}
+			}
+        	
+        	
 		}
 	}

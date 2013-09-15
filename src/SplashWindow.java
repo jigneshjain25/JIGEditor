@@ -38,7 +38,7 @@ class SplashWindow
       
         
         try {
-			Thread.sleep(3000);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			System.out.println("Interupted fom sleep :Splash Screen");
 			e.printStackTrace();

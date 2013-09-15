@@ -39,7 +39,12 @@ public class pastebinListener implements ActionListener {
 		Component[] cp = ((JViewport)((JScrollPane)((frame.jTabbedPane.getSelectedComponent()))).getComponent(0)).getComponents();            
     	RSyntaxTextAreaExt editorCur = (RSyntaxTextAreaExt)(cp[0]); 		
 		PasteBinDialog pad = new PasteBinDialog("PasteBin Uploader", frame.frame,editorCur);
+		pad.getRootPane().setDefaultButton(pad.upload);
+		pad.upload.requestFocus();
+		pad.password.getCaret().setVisible(false);
+		pad.username.getCaret().setVisible(false);
 		pad.setVisible(true);
+		
 	}
 
 }
@@ -71,35 +76,35 @@ class PasteBinDialog extends JDialog implements ActionListener{
 		super(frame,name,true);
 		editorCur = editor;
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		setLocation(400, 400);
+	//	setLocation(400, 400);
 		setLayout(new BorderLayout());
 		format = new JComboBox(Constants.CHECKMENUCODES);
 		duration = new JComboBox(life);
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new BorderLayout());
 		JPanel panel11 = new JPanel();
-		panel11.add(new JLabel("User Name:"));
+		panel11.add(new JLabel("User Name: (Optional)"));
 		panel11.add(username);
 		JPanel panel12 = new JPanel();
-		panel12.add(new JLabel("Password:  "));
+		panel12.add(new JLabel("Password:   (Optional)"));
 		panel12.add(password);		
-		panel1.add(new JLabel("(Enter username ad password if you have Paste Bin Account)"),BorderLayout.NORTH);
+		panel1.add(new JLabel(" (Enter username and password if you have Paste Bin Account)"),BorderLayout.NORTH);
 		panel1.add(panel11,BorderLayout.CENTER);
 		panel1.add(panel12,BorderLayout.SOUTH);
 		JPanel panel2 = new JPanel();
 		panel2.setLayout(new BorderLayout());
 		JPanel panel21 = new JPanel();
-		panel21.add(new JLabel("Format*:"));
+		panel21.add(new JLabel(" Format: "));
 		panel21.add(format);
 		JPanel panel22 = new JPanel();
-		panel22.add(new JLabel("Expire Date*:"));
+		panel22.add(new JLabel("Expiry Date:   "));
 		panel22.add(duration);
 		JPanel panel23 = new JPanel();
-		panel23.add(new JLabel("Title:         "));
+		panel23.add(new JLabel("Title:           (Optional)"));
 		panel23.add(title);
 		panel2.add(panel23,BorderLayout.NORTH);
-		panel2.add(panel21,BorderLayout.CENTER);
-		panel2.add(panel22,BorderLayout.SOUTH);
+		panel2.add(panel22,BorderLayout.CENTER);
+		panel2.add(panel21,BorderLayout.SOUTH);
 		JPanel panel3 = new JPanel();
 		upload = new JButton("Upload");
 		upload.addActionListener(this);		
@@ -110,7 +115,8 @@ class PasteBinDialog extends JDialog implements ActionListener{
 		add(panel1,BorderLayout.NORTH);
 		add(panel2,BorderLayout.CENTER);
 		add(panel3,BorderLayout.SOUTH);
-		pack();
+		setSize(420,260);
+		setLocationRelativeTo(null);
 	}
 
 	@Override

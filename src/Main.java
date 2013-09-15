@@ -43,8 +43,10 @@ public class Main implements Constants{
 
 	JMenuBar myMenu=new JMenuBar();
 
-	JMenu file=new JMenu("File");	
-	JMenuItem neW=new JMenuItem("New");
+	JMenu file=new JMenu("File");
+	
+	JMenu neW=new JMenu("New");
+	
 	JMenuItem open=new JMenuItem("Open");
 	JMenuItem save=new JMenuItem("Save");
 	JMenuItem saveAs=new JMenuItem("Save As");
@@ -64,6 +66,7 @@ public class Main implements Constants{
 	JMenu lang=new JMenu("Language");
 	JCheckBoxMenuItem[] langs=new JCheckBoxMenuItem[34];
 	JMenuItem[] langItems = new JMenuItem[34];
+	JMenuItem[] langItemsCopy = new JMenuItem[34];
 	
 	JMenu pref = new JMenu ("Preferences");
 	JMenu defCode = new JMenu ("Default Code");
@@ -120,7 +123,7 @@ public class Main implements Constants{
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK));   // Ctrl + s 
 		saveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));   // Ctrl + Shift + s
 		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,ActionEvent.ALT_MASK));   // Alt + F4
-		neW.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,ActionEvent.CTRL_MASK));    // Ctrl + n
+		//neW.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,ActionEvent.CTRL_MASK));    // Ctrl + n
 		close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));  // Ctrl + w
 		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,ActionEvent.CTRL_MASK));   // Ctrl + o
 		Copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK));	//Ctrl + c
@@ -131,7 +134,7 @@ public class Main implements Constants{
 		find.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H,ActionEvent.CTRL_MASK));	//Ctrl + h
 		print.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,ActionEvent.CTRL_MASK));	//Ctrl + p
 
-		neW.addActionListener(new neWListener(this));
+		//neW.addActionListener(new neWListener(this));
 		open.addActionListener(new openListener(this));
 		save.addActionListener(new saveListener(this));
 		saveAs.addActionListener(new saveAsListener(this));
@@ -192,6 +195,7 @@ public class Main implements Constants{
 		{
 			langs[i]=new JCheckBoxMenuItem(CHECKMENUCODES[i]);	//lang check boxes
 			langItems[i] = new JMenuItem(CHECKMENUCODES[i]);	//default code menu items
+			langItemsCopy[i] = new JMenuItem(CHECKMENUCODES[i]);
 		}
 		
 		langs[0].setSelected(true);		
@@ -201,8 +205,12 @@ public class Main implements Constants{
 			langs[i].addActionListener(new langListener(this,i));
 			lang.add(langs[i]);// lang is the Language menu
 			langItems[i].addActionListener(new defaultCodeListener(this,i));
+			langItemsCopy[i].addActionListener(new neWListener(this,i));
 			defCode.add(langItems[i]);
+			neW.add(langItemsCopy[i]);
 		}
+		
+		langItemsCopy[0].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,ActionEvent.CTRL_MASK));    // Ctrl + n
 		
 		for(int i=0;i<16;i++)
 		{
@@ -212,6 +220,7 @@ public class Main implements Constants{
 		}
 		tabSizes[5].setSelected(true);
 		
+		pref.setMnemonic('p');
 		pref.add(defCode);
 		pref.addSeparator();
 		pref.add(tabSize);

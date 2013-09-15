@@ -28,8 +28,8 @@ public class defaultCodeListener implements ActionListener,Constants{
 	
 	public void actionPerformed(ActionEvent e)
 	{
-		final JFrame defC = new JFrame("Default code for"+CHECKMENUCODES[codeNo]);
-		defC.setSize(400, 200);
+		final JFrame defC = new JFrame("Default code for "+CHECKMENUCODES[codeNo]);
+		defC.setSize(600, 400);
 		final RSyntaxTextAreaExt defaultCode = new RSyntaxTextAreaExt();
 		defaultCode.setSyntaxEditingStyle(STYLECODES[codeNo]);
 		defaultCode.setRows(20);
@@ -97,6 +97,7 @@ public class defaultCodeListener implements ActionListener,Constants{
 		buttonPanel.add(cancel);
 		defC.add(textP, BorderLayout.CENTER);
 		defC.add(buttonPanel, BorderLayout.EAST);
+		defC.setLocationRelativeTo(null);
 		defC.setVisible(true);
 	}
 }
