@@ -29,41 +29,7 @@ public class neWListener implements ActionListener,Constants{
 		public void actionPerformed(ActionEvent e) {
 			final RSyntaxTextAreaExt editorCur=new RSyntaxTextAreaExt();
 			
-			/*final JFrame langFrame = new JFrame ("Select Language");
-			final JComboBox langSelect = new JComboBox(CHECKMENUCODES);
-			JPanel buttons = new JPanel();
-			buttons.setLayout(new BorderLayout());
-			JButton ok = new JButton("OK");
-			buttons.add(ok, BorderLayout.CENTER);
-			langFrame.add(langSelect);
-			langFrame.add(buttons, BorderLayout.SOUTH);
-			langFrame.setVisible(true);
-			langFrame.setSize(150, 80);
-			langFrame.setLocation(300, 300);
-			ok.addActionListener(new ActionListener()
-			{
-				public void actionPerformed(ActionEvent e)
-				{
-					editorCur.setSyntaxEditingStyle(STYLECODES[langSelect.getSelectedIndex()]);
-					editorCur.StyleCodeNo=langSelect.getSelectedIndex();
-					File file = new File("Source/"+CHECKMENUCODES[langSelect.getSelectedIndex()]+".txt");
-					if (file.exists())
-					{
-						try{	
-							FileReader fileReader=new FileReader(file);
-							BufferedReader reader=new BufferedReader(fileReader);
-							String line=null;
-							while((line=reader.readLine())!=null)
-								editorCur.append(line+"\n");
-							
-						}catch(Exception ex){
-						System.out.println("ERROR OPENING THE FILE");
-						}
-					}
-					langFrame.dispose();
-				}
-			});
-			*/
+		
 			editorCur.setFont(Main.curFont);
 			RTextScrollPane scrollerCur = new RTextScrollPane(editorCur);
 			scrollerCur.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -81,7 +47,7 @@ public class neWListener implements ActionListener,Constants{
         	
         	editorCur.setSyntaxEditingStyle(STYLECODES[index]);
 			editorCur.StyleCodeNo=index;
-			File file = new File("Source/"+CHECKMENUCODES[index]+".txt");
+			File file = new File(".jigeditor_defcode/"+CHECKMENUCODES[index]+".txt");
 			if (file.exists())
 			{
 				try{	
