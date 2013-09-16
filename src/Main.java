@@ -95,6 +95,9 @@ public class Main implements Constants{
 	int curTabWidth = 8;
 	
 	public static void main(String[] args) {
+		
+		new SplashWindow();
+		
 		//setting nimbus look if available
 		try {
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -111,10 +114,10 @@ public class Main implements Constants{
 
 		    }
 		}
-
+		
+		
 		Main o=new Main();
 		RSyntaxTextAreaExt.obj=o;
-		SplashWindow s= new SplashWindow();
 		o.go();
 	}
 

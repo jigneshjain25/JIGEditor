@@ -19,8 +19,8 @@ class SplashWindow
     	JPanel content = (JPanel) jw.getContentPane();
         content.setBackground(Color.white);
         
-        int width = 400;
-        int height = 300;
+        int width = 500;
+        int height = 250;
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (screen.width - width) / 2;
         int y = (screen.height - height) / 2;
@@ -38,7 +38,7 @@ class SplashWindow
       
         
         try {
-			Thread.sleep(2000);
+			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			System.out.println("Interupted fom sleep :Splash Screen");
 			e.printStackTrace();
